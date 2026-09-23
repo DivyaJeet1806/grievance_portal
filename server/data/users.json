@@ -1,0 +1,31 @@
+[
+  {
+    "id": "USR-ADMIN-01",
+    "name": "Dr. Anita Rao (Dean of Student Welfare)",
+    "email": "admin@campus.edu",
+    "passwordHash": "$2b$10$8iA7OqEfD2r3ZYybaxx0kORrFrH9ozoSYB.4Gkbu29W6Xlu.D0dnC",
+    "role": "admin",
+    "department": "Student Affairs & Redressal Desk",
+    "createdAt": "2026-09-01T00:00:00.000Z"
+  },
+  {
+    "id": "USR-STUDENT-01",
+    "name": "Rahul Sharma",
+    "email": "student@campus.edu",
+    "passwordHash": "$2b$10$WTOnDbKZUxOLgpYt5uGld.gfbv7.jXDz1YX76hExlfPqidpRmJanS",
+    "role": "student",
+    "rollNumber": "CS-2023-45",
+    "department": "Computer Science & Engineering",
+    "createdAt": "2026-09-01T00:00:00.000Z"
+  },
+  {
+    "id": "USR-STUDENT-3171",
+    "name": "Priya Test",
+    "email": "priya.test@campus.edu",
+    "passwordHash": "$2b$10$Jid3W5xwypMEVpDIn1swqOwAlu1P0SWZAYDUmUXaysi5R3N7HAgR.",
+    "role": "student",
+    "rollNumber": "CS-2024-99",
+    "department": "Computer Science",
+    "createdAt": "2026-09-23T09:06:38.860Z"
+  }
+]
