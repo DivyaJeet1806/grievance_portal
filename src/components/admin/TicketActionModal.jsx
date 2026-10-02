@@ -92,6 +92,32 @@ export const TicketActionModal = ({ ticket, isOpen, onClose }) => {
             <span>Transition Workflow Status <span style={{ color: 'var(--color-rose)' }}>*</span></span>
             <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>Updates complainant progress tracker</span>
           </label>
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+            {[
+              { val: 'In Progress', label: 'In Progress', color: '#8b5cf6', bg: 'rgba(139,92,246,0.18)' },
+              { val: 'Resolved', label: 'Solved (Resolved)', color: '#10b981', bg: 'rgba(16,185,129,0.18)' },
+              { val: 'Rejected', label: 'Rejected', color: '#f43f5e', bg: 'rgba(244,63,94,0.18)' }
+            ].map(pill => (
+              <button
+                key={pill.val}
+                type="button"
+                onClick={() => setNewStatus(pill.val)}
+                style={{
+                  padding: '0.4rem 0.85rem',
+                  borderRadius: 'var(--radius-full)',
+                  border: `1px solid ${newStatus === pill.val ? pill.color : 'var(--border-subtle)'}`,
+                  background: newStatus === pill.val ? pill.bg : 'var(--surface-input)',
+                  color: newStatus === pill.val ? pill.color : 'var(--text-secondary)',
+                  fontWeight: 700,
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {pill.label}
+              </button>
+            ))}
+          </div>
           <select
             id="ticket-status-select"
             className="form-control"
@@ -99,9 +125,8 @@ export const TicketActionModal = ({ ticket, isOpen, onClose }) => {
             onChange={(e) => setNewStatus(e.target.value)}
           >
             <option value="Submitted">Submitted (Queued for evaluation)</option>
-            <option value="Under Review">Under Review (Committee screening)</option>
-            <option value="In Progress">In Progress (Active investigation)</option>
-            <option value="Resolved">Resolved (Completed & closed)</option>
+            <option value="In Progress">In Progress (Active investigation / repair)</option>
+            <option value="Resolved">Resolved / Solved (Completed & closed)</option>
             <option value="Rejected">Rejected (Ineligible / Duplicate)</option>
           </select>
         </div>

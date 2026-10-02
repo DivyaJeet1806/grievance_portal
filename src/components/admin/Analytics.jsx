@@ -1,35 +1,35 @@
 import React from 'react';
 import { useGrievance } from '../../context/GrievanceContext';
-import { 
-  Chart as ChartJS, 
-  ArcElement, 
-  Tooltip, 
-  Legend, 
-  CategoryScale, 
-  LinearScale, 
-  BarElement, 
-  Title 
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title
 } from 'chart.js';
 import { Doughnut, Bar } from 'react-chartjs-2';
-import { 
-  Inbox, 
-  Clock, 
-  Activity, 
-  CheckCircle2, 
-  AlertTriangle, 
-  Download, 
-  TrendingUp, 
-  ShieldAlert 
+import {
+  Inbox,
+  Clock,
+  Activity,
+  CheckCircle2,
+  AlertTriangle,
+  Download,
+  TrendingUp,
+  ShieldAlert
 } from 'lucide-react';
 import { getDepartmentForCategory } from '../../data/departmentMapping';
 
 ChartJS.register(
-  ArcElement, 
-  Tooltip, 
-  Legend, 
-  CategoryScale, 
-  LinearScale, 
-  BarElement, 
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
   Title
 );
 
@@ -87,7 +87,6 @@ export const Analytics = () => {
   // Status & Priority Bar Chart
   const statusCounts = {
     'Submitted': 0,
-    'Under Review': 0,
     'In Progress': 0,
     'Resolved': 0
   };
@@ -106,8 +105,7 @@ export const Analytics = () => {
         data: Object.values(statusCounts),
         backgroundColor: [
           'rgba(148, 163, 184, 0.7)',
-          'rgba(59, 130, 246, 0.8)',
-          'rgba(245, 158, 11, 0.8)',
+          'rgba(139, 92, 246, 0.8)',
           'rgba(16, 185, 129, 0.85)'
         ],
         borderRadius: 8,
@@ -166,13 +164,10 @@ export const Analytics = () => {
       {/* Top Banner with Quick Export */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>Executive Redressal Overview</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
-            Real-time compliance monitoring, department distributions, and resolution performance metrics.
-          </p>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>Overview</h2>
         </div>
 
-        <button 
+        <button
           id="export-csv-btn"
           className="btn btn-secondary btn-sm"
           onClick={exportCSV}

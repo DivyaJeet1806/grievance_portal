@@ -237,26 +237,31 @@ export const LodgeForm = () => {
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Sets escalation timeline</span>
             </label>
             <div className="urgency-grid">
-              {URGENCY_LEVELS.map((lvl) => (
-                <div
-                  key={lvl.value}
-                  className={`urgency-option ${formData.urgency === lvl.value ? 'selected' : ''}`}
-                  onClick={() => setFormData({ ...formData, urgency: lvl.value })}
-                >
-                  <div className="urgency-radio-indicator" />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontWeight: 700, fontSize: '0.88rem' }}>{lvl.value}</span>
-                      <span className="sla-badge normal" style={{ fontSize: '0.7rem' }}>
-                        <Clock size={11} /> {lvl.sla}h SLA
-                      </span>
-                    </div>
-                    <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-                      {lvl.label.split('(')[1]?.replace(')', '')}
+              {URGENCY_LEVELS.map((lvl) => {
+                const val = typeof lvl === 'string' ? lvl : lvl.value;
+                const sla = typeof lvl === 'string' ? (lvl === 'Critical' ? 12 : lvl === 'High' ? 24 : lvl === 'Low' ? 72 : 48) : (lvl.sla || 48);
+                const desc = typeof lvl === 'string' ? lvl : (lvl.label?.includes('(') ? lvl.label.split('(')[1]?.replace(')', '') : lvl.label || val);
+                return (
+                  <div
+                    key={val}
+                    className={`urgency-option ${formData.urgency === val ? 'selected' : ''}`}
+                    onClick={() => setFormData({ ...formData, urgency: val })}
+                  >
+                    <div className="urgency-radio-indicator" />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontWeight: 700, fontSize: '0.88rem' }}>{val}</span>
+                        <span className="sla-badge normal" style={{ fontSize: '0.7rem' }}>
+                          <Clock size={11} /> {sla}h SLA
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                        {desc}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

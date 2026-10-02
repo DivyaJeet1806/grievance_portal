@@ -223,10 +223,25 @@ export const MyGrievances = () => {
       ) : (
         <div className="glass-panel" style={{ textAlign: 'center', padding: '3.5rem 1.5rem' }}>
           <Inbox size={48} style={{ color: 'var(--text-muted)', margin: '0 auto 1rem auto' }} />
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>No grievances match your filter</h3>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.35rem' }}>
-            Try adjusting your search criteria or resetting filters.
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>
+            {grievances.length === 0 ? 'No Grievances Lodged Yet' : 'No grievances match your filter'}
+          </h3>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.35rem', marginBottom: '1.25rem' }}>
+            {grievances.length === 0 
+              ? 'You have not submitted any grievances yet. Click below to file your first complaint.'
+              : 'Try adjusting your search criteria or resetting filters.'}
           </p>
+          {grievances.length === 0 && (
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={() => setActiveTab('lodge')}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+            >
+              <PlusCircle size={15} />
+              <span>Lodge New Grievance</span>
+            </button>
+          )}
         </div>
       )}
     </div>

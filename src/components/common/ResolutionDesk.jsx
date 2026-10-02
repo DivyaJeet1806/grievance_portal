@@ -40,9 +40,6 @@ export const ResolutionDesk = () => {
   const { grievances, confirmGrievanceResolution, trackedTicketId, setTrackedTicketId } = useGrievance();
   const { user } = useAuth();
 
-  // Role perspective: 'department' or 'complainant'
-  const [perspective, setPerspective] = useState(user?.role === 'admin' ? 'department' : 'complainant');
-
   // Search & Filters
   const [search, setSearch] = useState('');
   const [deptFilter, setDeptFilter] = useState('ALL');
@@ -51,49 +48,49 @@ export const ResolutionDesk = () => {
   // Selected Ticket
   const [selectedTicketId, setSelectedTicketId] = useState('');
 
-  // Department Confirmation Form State
-  const [deptNote, setDeptNote] = useState('');
-  const [deptStatus, setDeptStatus] = useState('Resolved');
-  const [deptOfficerName, setDeptOfficerName] = useState('');
-
   // Complainant Confirmation Form State
   const [complainantSatisfaction, setComplainantSatisfaction] = useState('satisfied'); // 'satisfied' or 'unsatisfied'
   const [complainantRating, setComplainantRating] = useState(5);
   const [complainantFeedback, setComplainantFeedback] = useState('');
-  const [complainantName, setComplainantName] = useState('');
+  const [complainantName, setComplainantName] = useState(user?.name || '');
 
   // Loading state
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Sync perspective when auth changes
   useEffect(() => {
-    if (user?.role === 'admin') {
-      setPerspective('department');
-      setDeptOfficerName(user.name);
-    } else if (user) {
+    if (user?.name) {
       setComplainantName(user.name);
     }
   }, [user]);
 
+  // Filter only grievances submitted by the logged-in complainant
+  const myGrievances = grievances.filter(g => {
+    if (!user) return true;
+    const matchEmail = user.email && g.email && g.email.toLowerCase() === user.email.toLowerCase();
+    const matchName = user.name && g.submittedBy && g.submittedBy.toLowerCase() === user.name.toLowerCase();
+    const matchRoll = user.rollNumber && g.rollNumber && g.rollNumber.toLowerCase() === user.rollNumber.toLowerCase();
+    return matchEmail || matchName || matchRoll;
+  });
+
   // Set initial selected ticket
   useEffect(() => {
     if (trackedTicketId) {
-      const match = grievances.find(g => g.id.toUpperCase() === trackedTicketId.toUpperCase());
+      const match = myGrievances.find(g => g.id.toUpperCase() === trackedTicketId.toUpperCase());
       if (match) {
         setSelectedTicketId(match.id);
         return;
       }
     }
-    if (grievances.length > 0 && !selectedTicketId) {
-      setSelectedTicketId(grievances[0].id);
+    if (myGrievances.length > 0 && (!selectedTicketId || !myGrievances.find(g => g.id === selectedTicketId))) {
+      setSelectedTicketId(myGrievances[0].id);
     }
-  }, [grievances, trackedTicketId, selectedTicketId]);
+  }, [myGrievances, trackedTicketId, selectedTicketId]);
 
-  // Find currently selected ticket object
-  const selectedTicket = grievances.find(g => g.id === selectedTicketId) || grievances[0] || null;
+  // Find currently selected ticket object from my grievances
+  const selectedTicket = myGrievances.find(g => g.id === selectedTicketId) || myGrievances[0] || null;
 
-  // Filtered grievances list
-  const filteredList = grievances.filter(g => {
+  // Filtered grievances list (strictly limited to complainant's own grievances)
+  const filteredList = myGrievances.filter(g => {
     if (deptFilter !== 'ALL') {
       const dept = g.department || getDepartmentForCategory(g.category).department;
       if (dept !== deptFilter) return false;
@@ -120,25 +117,6 @@ export const ResolutionDesk = () => {
 
     return true;
   });
-
-  // Handle Department Confirmation Submit
-  const handleDepartmentConfirm = async (e) => {
-    e.preventDefault();
-    if (!selectedTicket) return;
-    setIsSubmitting(true);
-
-    const officer = deptOfficerName.trim() || user?.name || selectedTicket.assignedTo || 'Department Officer';
-
-    await confirmGrievanceResolution(selectedTicket.id, {
-      confirmedByRole: 'department',
-      confirmedByName: officer,
-      status: deptStatus,
-      notes: deptNote.trim() || `Department confirmed problem resolved: ${selectedTicket.title}`
-    });
-
-    setDeptNote('');
-    setIsSubmitting(false);
-  };
 
   // Handle Complainant Confirmation Submit
   const handleComplainantConfirm = async (e) => {
@@ -173,7 +151,7 @@ export const ResolutionDesk = () => {
 
   return (
     <div style={{ maxWidth: '1240px', margin: '0 auto', paddingBottom: '3rem' }}>
-      {/* Page Title & Perspective Switcher */}
+      {/* Page Title */}
       <div className="glass-panel" style={{ padding: '1.75rem', marginBottom: '1.75rem', borderRadius: 'var(--radius-lg)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.25rem' }}>
           <div>
@@ -193,75 +171,47 @@ export const ResolutionDesk = () => {
               </div>
               <div>
                 <h1 style={{ fontSize: '1.55rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, lineHeight: 1.15 }}>
-                  Problem Resolution & Verification Desk
+                  Complainant Verification & Sign-Off Desk
                 </h1>
                 <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', margin: '0.2rem 0 0' }}>
-                  Joint confirmation portal — designated departments and complainants verify that campus grievances are resolved on ground.
+                  Verify on-ground resolution and provide your feedback for grievances you personally raised.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Perspective Toggle (Department vs Complainant) */}
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
+            gap: '0.5rem',
             background: 'var(--surface-input)',
             border: '1px solid var(--border-subtle)',
             borderRadius: 'var(--radius-full)',
-            padding: '0.3rem'
+            padding: '0.45rem 1rem',
+            fontSize: '0.82rem',
+            color: 'var(--text-secondary)'
           }}>
-            <button
-              id="switch-perspective-dept"
-              type="button"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                padding: '0.5rem 1rem',
-                borderRadius: 'var(--radius-full)',
-                border: 'none',
-                background: perspective === 'department' ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'transparent',
-                color: perspective === 'department' ? '#fff' : 'var(--text-secondary)',
-                fontWeight: 700,
-                fontSize: '0.84rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: perspective === 'department' ? '0 2px 8px rgba(99,102,241,0.35)' : 'none'
-              }}
-              onClick={() => setPerspective('department')}
-            >
-              <Building2 size={15} />
-              <span>Department Desk</span>
-            </button>
-            <button
-              id="switch-perspective-person"
-              type="button"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                padding: '0.5rem 1rem',
-                borderRadius: 'var(--radius-full)',
-                border: 'none',
-                background: perspective === 'complainant' ? 'linear-gradient(135deg, #10b981, #059669)' : 'transparent',
-                color: perspective === 'complainant' ? '#fff' : 'var(--text-secondary)',
-                fontWeight: 700,
-                fontSize: '0.84rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: perspective === 'complainant' ? '0 2px 8px rgba(16,185,129,0.35)' : 'none'
-              }}
-              onClick={() => setPerspective('complainant')}
-            >
-              <User size={15} />
-              <span>Complainant / Citizen</span>
-            </button>
+            <User size={15} style={{ color: '#10b981' }} />
+            <span>Reviewing as: <strong style={{ color: 'var(--text-primary)' }}>{user?.name || 'Complainant'}</strong></span>
           </div>
         </div>
       </div>
 
-      {/* Main Split Grid: Left = Problem Selector, Right = Problem Inspector & Confirmation Desk */}
+      {/* If the user has not lodged any grievances */}
+      {myGrievances.length === 0 ? (
+        <div className="glass-panel" style={{ padding: '3.5rem 2rem', textAlign: 'center', borderRadius: 'var(--radius-lg)' }}>
+          <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem' }}>
+            <ShieldCheck size={28} />
+          </div>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>
+            No Grievances Found For Your Account
+          </h3>
+          <p style={{ color: 'var(--text-secondary)', maxWidth: '520px', margin: '0 auto 1.5rem', fontSize: '0.9rem' }}>
+            Only the person who lodged a grievance can verify and review its resolution. As soon as you lodge a grievance and the department marks it as resolved, it will appear here for your confirmation and rating.
+          </p>
+        </div>
+      ) : (
+      /* Main Split Grid: Left = Problem Selector, Right = Problem Inspector & Confirmation Desk */
       <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: '1.5rem', alignItems: 'start' }}>
 
         {/* LEFT COLUMN: Problem Browser & Search */}
@@ -524,103 +474,8 @@ export const ResolutionDesk = () => {
               </div>
             </div>
 
-            {/* CONFIRMATION INTERACTIVE ACTION PANELS */}
-            {perspective === 'department' ? (
-              /* DEPARTMENT CONFIRMATION FORM */
-              <div className="glass-panel" style={{ padding: '1.75rem', borderRadius: 'var(--radius-lg)', borderTop: '3px solid #6366f1' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
-                  <Building2 size={18} style={{ color: 'var(--primary-500)' }} />
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
-                    Department Authority Sign-Off Desk
-                  </h3>
-                </div>
-                <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
-                  Inspect the physical problem above. Record the action taken and confirm resolution to notify the complainant.
-                </p>
-
-                <form onSubmit={handleDepartmentConfirm}>
-                  {/* Status Selection */}
-                  <div className="form-group" style={{ marginBottom: '1rem' }}>
-                    <label className="form-label">
-                      <span>Redressal Outcome / Status <span style={{ color: 'var(--color-rose)' }}>*</span></span>
-                    </label>
-                    <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-                      {[
-                        { label: 'Confirm Solved (Resolved)', val: 'Resolved', color: '#10b981' },
-                        { label: 'In Progress (Active Work Order)', val: 'In Progress', color: '#8b5cf6' },
-                        { label: 'Under Review (Screening)', val: 'Under Review', color: '#3b82f6' }
-                      ].map(opt => (
-                        <button
-                          key={opt.val}
-                          type="button"
-                          onClick={() => setDeptStatus(opt.val)}
-                          style={{
-                            padding: '0.5rem 1rem',
-                            borderRadius: 'var(--radius-full)',
-                            border: `1px solid ${deptStatus === opt.val ? opt.color : 'var(--border-subtle)'}`,
-                            background: deptStatus === opt.val ? 'rgba(99,102,241,0.15)' : 'transparent',
-                            color: deptStatus === opt.val ? opt.color : 'var(--text-secondary)',
-                            fontWeight: 700,
-                            fontSize: '0.82rem',
-                            cursor: 'pointer',
-                            transition: 'all 0.18s ease'
-                          }}
-                        >
-                          {opt.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Officer Action Remark */}
-                  <div className="form-group" style={{ marginBottom: '1rem' }}>
-                    <label className="form-label" htmlFor="dept-action-notes">
-                      <span>Official Action Taken & Resolution Summary <span style={{ color: 'var(--color-rose)' }}>*</span></span>
-                      <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>Visible to student & grievance committee</span>
-                    </label>
-                    <textarea
-                      id="dept-action-notes"
-                      rows={3}
-                      className="form-control"
-                      placeholder="e.g. Electrician visited Site Room 302; faulty drain pan sealed and tested. All equipment safe."
-                      value={deptNote}
-                      onChange={e => setDeptNote(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  {/* Officer Name Stamp */}
-                  <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-                    <label className="form-label" htmlFor="dept-officer-name">
-                      Recording Officer Name
-                    </label>
-                    <input
-                      id="dept-officer-name"
-                      type="text"
-                      className="form-control"
-                      placeholder="e.g. Er. Vikram Mehta"
-                      value={deptOfficerName}
-                      onChange={e => setDeptOfficerName(e.target.value)}
-                    />
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-                    <button
-                      id="dept-confirm-submit-btn"
-                      type="submit"
-                      className="btn btn-primary"
-                      disabled={isSubmitting}
-                      style={{ background: 'linear-gradient(135deg, #10b981, #059669)', fontSize: '0.9rem', padding: '0.65rem 1.4rem' }}
-                    >
-                      <CheckCircle2 size={16} />
-                      <span>{isSubmitting ? 'Confirming...' : 'Confirm Problem Solved (Department Sign-off)'}</span>
-                    </button>
-                  </div>
-                </form>
-              </div>
-            ) : (
-              /* COMPLAINANT / CITIZEN CONFIRMATION FORM */
-              <div className="glass-panel" style={{ padding: '1.75rem', borderRadius: 'var(--radius-lg)', borderTop: '3px solid #10b981' }}>
+            {/* COMPLAINANT / CITIZEN CONFIRMATION FORM */}
+            <div className="glass-panel" style={{ padding: '1.75rem', borderRadius: 'var(--radius-lg)', borderTop: '3px solid #10b981' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
                   <User size={18} style={{ color: '#10b981' }} />
                   <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
@@ -775,7 +630,6 @@ export const ResolutionDesk = () => {
                   </div>
                 </form>
               </div>
-            )}
           </div>
         ) : (
           <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center', borderRadius: 'var(--radius-lg)' }}>
@@ -787,6 +641,7 @@ export const ResolutionDesk = () => {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 };

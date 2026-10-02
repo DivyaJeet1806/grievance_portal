@@ -432,3 +432,60 @@
   font-size: 0.8rem;
   color: var(--text-muted);
 }
+
+/* --------------------------------------------------------------------------
+   Responsive — Complainant View
+   -------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  .lodge-container {
+    max-width: 100%;
+  }
+  .form-card {
+    padding: 1.5rem 1.1rem;
+  }
+  .guidelines-card {
+    padding: 1.25rem;
+  }
+  .switch-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .track-header-card {
+    padding: 1.5rem 1.1rem;
+  }
+  .track-search-box {
+    flex-direction: column;
+  }
+  .tickets-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .ticket-detail-view {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .ticket-meta-grid {
+    grid-template-columns: 1fr;
+  }
+  .ticket-info-card {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .urgency-grid {
+    grid-template-columns: 1fr;
+  }
+  .filter-pills {
+    gap: 0.35rem;
+  }
+  .filter-pill {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.78rem;
+  }
+  .tickets-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

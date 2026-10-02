@@ -84,7 +84,7 @@ export const TrackTicket = () => {
     if (!selectedTicket) return 'pending';
     const status = selectedTicket.status;
 
-    const stageOrder = ['Submitted', 'Under Review', 'In Progress', 'Resolved'];
+    const stageOrder = STAGES;
     const currentIdx = stageOrder.indexOf(status);
     const stepIdx = stageOrder.indexOf(stageKey);
 
@@ -133,18 +133,20 @@ export const TrackTicket = () => {
         </form>
 
         {/* Quick Recent Chips for testing */}
-        <div className="recent-searches">
-          <span>Quick Select:</span>
-          {grievances.slice(0, 4).map(g => (
-            <button
-              key={g.id}
-              className="recent-chip"
-              onClick={() => handleSelectRecent(g.id)}
-            >
-              {g.id} ({g.status})
-            </button>
-          ))}
-        </div>
+        {grievances.length > 0 && (
+          <div className="recent-searches">
+            <span>Recent Tickets:</span>
+            {grievances.slice(0, 4).map(g => (
+              <button
+                key={g.id}
+                className="recent-chip"
+                onClick={() => handleSelectRecent(g.id)}
+              >
+                {g.id} ({g.status})
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Ticket Details View */}
@@ -155,17 +157,18 @@ export const TrackTicket = () => {
             {/* Visual Step Tracker */}
             <div className="step-tracker">
               {STAGES.map((s) => {
-                const stepState = getStepStatus(s.key);
+                const stageName = typeof s === 'string' ? s : (s.label || s.key || '');
+                const stepState = getStepStatus(stageName);
                 return (
-                  <div key={s.key} className={`step-node ${stepState}`}>
+                  <div key={stageName} className={`step-node ${stepState}`}>
                     <div className="step-circle">
                       {stepState === 'completed' ? (
                         <CheckCircle size={18} style={{ color: 'var(--color-emerald)' }} />
                       ) : (
-                        <span>{s.label.charAt(0)}</span>
+                        <span>{stageName.charAt(0)}</span>
                       )}
                     </div>
-                    <span className="step-label">{s.label}</span>
+                    <span className="step-label">{stageName}</span>
                   </div>
                 );
               })}
@@ -410,9 +413,13 @@ export const TrackTicket = () => {
         /* Not Found State */
         <div className="glass-panel" style={{ padding: '3.5rem 1.5rem', textAlign: 'center' }}>
           <AlertCircle size={48} style={{ color: 'var(--color-rose)', margin: '0 auto 1rem auto' }} />
-          <h3 style={{ fontSize: '1.35rem', fontWeight: 800 }}>No Grievance Found</h3>
+          <h3 style={{ fontSize: '1.35rem', fontWeight: 800 }}>
+            {searchInput ? 'No Grievance Found' : 'No Ticket Selected'}
+          </h3>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '480px', margin: '0.5rem auto 1.5rem auto', fontSize: '0.92rem' }}>
-            We could not locate any ticket with ID <strong style={{ color: 'var(--primary-500)' }}>"{searchInput}"</strong>. Check the ticket code format (e.g. GRV-2026-1082) or choose from the demo tickets above.
+            {searchInput
+              ? <>We could not locate any ticket with ID <strong style={{ color: 'var(--primary-500)' }}>"{searchInput}"</strong>. Check the ticket code format (e.g. GRV-2026-XXXX) or verify the ID.</>
+              : <>Enter your Grievance Tracking ID above or lodge a new grievance to start tracking.</>}
           </p>
         </div>
       )}

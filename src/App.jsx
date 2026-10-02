@@ -13,6 +13,7 @@ import { TriageTable } from './components/admin/TriageTable';
 import { OfficerDashboard } from './components/admin/OfficerDashboard';
 import { ResolutionDesk } from './components/common/ResolutionDesk';
 import { ResolvedProblems } from './components/common/ResolvedProblems';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import './css/complainant.css';
 import './css/admin.css';
 import { ShieldAlert, ShieldCheck, Award } from 'lucide-react';
@@ -27,7 +28,7 @@ const MainLayout = () => {
       if (activeRole !== targetRole) {
         setActiveRole(targetRole);
       }
-      if (targetRole === 'admin' && (activeTab === 'lodge' || activeTab === 'track' || activeTab === 'my-tickets')) {
+      if (targetRole === 'admin' && (activeTab === 'lodge' || activeTab === 'track' || activeTab === 'my-tickets' || activeTab === 'resolution')) {
         setActiveTab('overview');
       } else if (targetRole === 'complainant' && (activeTab === 'overview' || activeTab === 'triage' || activeTab === 'department')) {
         setActiveTab('lodge');
@@ -58,7 +59,6 @@ const MainLayout = () => {
             {activeTab === 'triage' && <TriageTable />}
             {activeTab === 'department' && <OfficerDashboard />}
             {activeTab === 'resolved' && <ResolvedProblems />}
-            {activeTab === 'resolution' && <ResolutionDesk />}
           </>
         )}
       </main>
@@ -143,10 +143,12 @@ const AppContent = () => {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <GrievanceProvider>
-        <AppContent />
-      </GrievanceProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <GrievanceProvider>
+          <AppContent />
+        </GrievanceProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }

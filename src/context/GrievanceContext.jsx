@@ -11,10 +11,8 @@ const ROLE_KEY = 'grievance_hub_active_role';
 export const GrievanceProvider = ({ children }) => {
   const { getAuthHeaders, user } = useAuth();
 
-  // Theme state
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem(THEME_KEY) || 'dark';
-  });
+  // Theme state - locked to dark mode
+  const theme = 'dark';
 
   // Active Role state: 'complainant' or 'admin'
   const [activeRole, setActiveRole] = useState(() => {
@@ -67,11 +65,11 @@ export const GrievanceProvider = ({ children }) => {
     fetchGrievances();
   }, [fetchGrievances]);
 
-  // Sync theme
+  // Sync theme - dark mode default
   useEffect(() => {
-    localStorage.setItem(THEME_KEY, theme);
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+    localStorage.setItem(THEME_KEY, 'dark');
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }, []);
 
   // Sync role
   useEffect(() => {
@@ -83,9 +81,7 @@ export const GrievanceProvider = ({ children }) => {
     }
   }, [activeRole]);
 
-  const toggleTheme = () => {
-    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
-  };
+  const toggleTheme = () => {};
 
   // Create new Grievance via Node API
   const addGrievance = async (formData) => {
@@ -358,7 +354,7 @@ export const GrievanceProvider = ({ children }) => {
 
   // Analytics metrics
   const totalCount = grievances.length;
-  const pendingCount = grievances.filter(g => g.status === 'Submitted' || g.status === 'Under Review').length;
+  const pendingCount = grievances.filter(g => g.status === 'Submitted').length;
   const inProgressCount = grievances.filter(g => g.status === 'In Progress').length;
   const resolvedCount = grievances.filter(g => g.status === 'Resolved').length;
   const criticalCount = grievances.filter(g => g.urgency === 'Critical' && g.status !== 'Resolved').length;

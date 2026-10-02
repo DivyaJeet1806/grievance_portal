@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
 import { useGrievance } from '../../context/GrievanceContext';
+import { useAuth } from '../../context/AuthContext';
 import { CATEGORIES } from '../../data/initialGrievances';
 import { TicketActionModal } from './TicketActionModal';
-import { 
-  Search, 
-  Filter, 
-  Edit3, 
-  MapPin, 
-  Clock, 
-  AlertCircle, 
-  CheckCircle, 
+import {
+  Search,
+  Filter,
+  Edit3,
+  MapPin,
+  Clock,
+  AlertCircle,
+  CheckCircle,
+  CheckCircle2,
   SlidersHorizontal,
   Zap
 } from 'lucide-react';
 import { getDepartmentForCategory } from '../../data/departmentMapping';
 
 export const TriageTable = () => {
-  const { grievances, setActiveTab } = useGrievance();
+  const { grievances, updateGrievanceStatus, showToast, setActiveTab } = useGrievance();
+  const { user } = useAuth();
 
   const [search, setSearch] = useState('');
   // Default to ACTIVE so resolved problems are removed from the main triage page
@@ -100,6 +103,28 @@ export const TriageTable = () => {
     setIsModalOpen(true);
   };
 
+  const handleQuickStatus = async (ticket, targetStatus) => {
+    if (targetStatus === 'Resolved') {
+      const note = window.prompt(`Enter resolution summary for Ticket #${ticket.id}:`, 'Problem inspected and successfully resolved on ground.');
+      if (note === null) return; // User cancelled
+      await updateGrievanceStatus(ticket.id, {
+        newStatus: 'Resolved',
+        assignedOfficer: ticket.assignedTo,
+        officerNote: note.trim() || 'Problem inspected and successfully resolved on ground.',
+        actorName: user?.name || 'Operating Officer'
+      });
+      showToast(`Ticket #${ticket.id} marked as Solved!`, 'success');
+    } else if (targetStatus === 'In Progress') {
+      await updateGrievanceStatus(ticket.id, {
+        newStatus: 'In Progress',
+        assignedOfficer: ticket.assignedTo,
+        officerNote: 'Investigation and active repair work initiated by department operator.',
+        actorName: user?.name || 'Operating Officer'
+      });
+      showToast(`Ticket #${ticket.id} status changed to In Progress!`, 'info');
+    }
+  };
+
   return (
     <div>
       {/* Resolved Archive Notice Banner */}
@@ -118,7 +143,7 @@ export const TriageTable = () => {
         }}>
           <div style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981' }}></span>
-            <span><strong>{resolvedCount} resolved grievance{resolvedCount !== 1 ? 's' : ''}</strong> moved to the Resolved Problems Archive and removed from active triage queue.</span>
+            <span><strong>{resolvedCount} resolved grievance{resolvedCount !== 1 ? 's' : ''}</strong> moved to the Resolved Problems Archive and removed from active Queue.</span>
           </div>
           <button
             id="triage-view-resolved-btn"
@@ -154,10 +179,9 @@ export const TriageTable = () => {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
-            <option value="ACTIVE">Active Triage Queue (Default)</option>
+            <option value="ACTIVE">Active Queue (Default)</option>
             <option value="ALL">All Statuses (Including Resolved)</option>
             <option value="Submitted">Submitted</option>
-            <option value="Under Review">Under Review</option>
             <option value="In Progress">In Progress</option>
             <option value="Resolved">Resolved</option>
             <option value="Rejected">Rejected</option>
@@ -199,7 +223,7 @@ export const TriageTable = () => {
             <tr>
               <th>Ticket ID</th>
               <th>Summary & Location</th>
-              <th 
+              <th
                 style={{ cursor: 'pointer', userSelect: 'none' }}
                 onClick={() => handleSort('department')}
                 title="Click to sort according to Department"
@@ -265,14 +289,56 @@ export const TriageTable = () => {
                     </span>
                   </td>
                   <td style={{ textAlign: 'right' }}>
-                    <button
-                      id={`action-btn-${ticket.id}`}
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => handleOpenAction(ticket)}
-                    >
-                      <Edit3 size={13} />
-                      <span>Manage</span>
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap' }}>
+                      {ticket.status !== 'In Progress' && ticket.status !== 'Resolved' && (
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          style={{
+                            fontSize: '0.78rem',
+                            padding: '0.35rem 0.65rem',
+                            color: '#8b5cf6',
+                            borderColor: 'rgba(139,92,246,0.35)',
+                            background: 'rgba(139,92,246,0.08)'
+                          }}
+                          title="Mark In Progress"
+                          onClick={() => handleQuickStatus(ticket, 'In Progress')}
+                        >
+                          <Clock size={12} />
+                          <span>In Progress</span>
+                        </button>
+                      )}
+
+                      {ticket.status !== 'Resolved' && (
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          style={{
+                            fontSize: '0.78rem',
+                            padding: '0.35rem 0.75rem',
+                            background: 'linear-gradient(135deg, #10b981, #059669)',
+                            border: 'none',
+                            boxShadow: '0 2px 6px rgba(16,185,129,0.3)'
+                          }}
+                          title="Mark Solved"
+                          onClick={() => handleQuickStatus(ticket, 'Resolved')}
+                        >
+                          <CheckCircle2 size={12} />
+                          <span>Mark Solved</span>
+                        </button>
+                      )}
+
+                      <button
+                        id={`action-btn-${ticket.id}`}
+                        className="btn btn-secondary btn-sm"
+                        style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem' }}
+                        onClick={() => handleOpenAction(ticket)}
+                        title="Manage Ticket & Reassign"
+                      >
+                        <Edit3 size={12} />
+                        <span>Manage</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

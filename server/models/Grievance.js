@@ -61,7 +61,7 @@ const grievanceSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['Submitted', 'Under Review', 'In Progress', 'Resolved'],
+      enum: ['Submitted', 'In Progress', 'Resolved', 'Rejected'],
       default: 'Submitted',
       index: true
     },

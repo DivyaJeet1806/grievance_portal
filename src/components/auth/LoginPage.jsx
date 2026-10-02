@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useGrievance } from '../../context/GrievanceContext';
 import { 
-  Lock, 
   KeyRound, 
-  AlertCircle 
+  AlertCircle, 
+  UserCheck, 
+  ShieldCheck, 
+  Sparkles,
+  LogIn
 } from 'lucide-react';
 
 export const LoginPage = () => {
@@ -14,11 +17,11 @@ export const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Form inputs
+  // Login inputs
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = async (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
     setLoading(true);
@@ -33,39 +36,73 @@ export const LoginPage = () => {
     }
   };
 
-  return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '2rem 1.5rem' }}>
+  const handleQuickLogin = async (demoEmail, demoPassword) => {
+    setEmail(demoEmail);
+    setPassword(demoPassword);
+    setErrorMsg('');
+    setLoading(true);
+    try {
+      const loggedUser = await login(demoEmail, demoPassword);
+      showToast(`Signed in as ${loggedUser.name}!`, 'success');
+      setActiveRole(loggedUser.role === 'admin' ? 'admin' : 'complainant');
+    } catch (err) {
+      setErrorMsg(err.message || 'Demo login failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      {/* Centered Login Card */}
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '2rem 1.5rem', background: 'radial-gradient(ellipse at 50% 10%, rgba(99,102,241,0.15) 0%, rgba(15,23,42,0.95) 75%)' }}>
+      
+      {/* Brand Header */}
+      <div style={{ textAlign: 'center', marginBottom: '1.75rem', maxWidth: '460px' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.4rem 1rem', borderRadius: 'var(--radius-full)', background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.25)', color: 'var(--primary-400)', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.85rem' }}>
+          <ShieldCheck size={16} /> Campus Grievance Redressal Portal
+        </div>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.4rem 0', color: 'var(--text-primary)' }}>
+          Grievance<span style={{ color: 'var(--primary-400)' }}>Hub</span>
+        </h1>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
+          Direct redressal tracking, transparent SLAs, and verified resolutions
+        </p>
+      </div>
+
+      {/* Centered Auth Card */}
       <div className="glass-panel" style={{ 
-        maxWidth: '440px', 
-        margin: '0 auto', 
+        maxWidth: '460px', 
         width: '100%', 
         overflow: 'hidden',
-        boxShadow: 'var(--shadow-float)'
+        boxShadow: 'var(--shadow-float)',
+        border: '1px solid var(--border-subtle)'
       }}>
-        <div style={{ padding: '2.75rem 2.25rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          
-          {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '1.75rem' }}>
-            <div style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '10px',
-              background: 'rgba(99, 102, 241, 0.12)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--primary-500)'
-            }}>
-              <Lock size={20} />
-            </div>
-            <div>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0 }}>Sign In to Portal</h2>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>Institutional Grievance Redressal System</p>
-            </div>
+        {/* Card Header */}
+        <div style={{ 
+          padding: '1.15rem 1.75rem', 
+          borderBottom: '1px solid var(--border-subtle)', 
+          background: 'rgba(255,255,255,0.02)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.65rem'
+        }}>
+          <div style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: 'var(--radius-sm)',
+            background: 'rgba(99, 102, 241, 0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--primary-400)'
+          }}>
+            <LogIn size={16} />
           </div>
+          <div>
+            <h2 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>Sign In to Portal</h2>
+          </div>
+        </div>
 
+        <div style={{ padding: '2rem 1.75rem' }}>
           {/* Error Banner */}
           {errorMsg && (
             <div style={{ 
@@ -75,7 +112,7 @@ export const LoginPage = () => {
               padding: '0.75rem 1rem', 
               marginBottom: '1.25rem',
               color: 'var(--color-rose)',
-              fontSize: '0.86rem',
+              fontSize: '0.85rem',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem'
@@ -86,7 +123,7 @@ export const LoginPage = () => {
           )}
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleLoginSubmit}>
             <div className="form-group">
               <label className="form-label" htmlFor="page-email">Institutional Email</label>
               <input
@@ -95,7 +132,7 @@ export const LoginPage = () => {
                 required
                 autoFocus
                 className="form-control"
-                placeholder="e.g. user@campus.edu"
+                placeholder="e.g. student@campus.edu"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -132,9 +169,56 @@ export const LoginPage = () => {
             </button>
           </form>
 
-          {/* Institutional footer notice */}
-          <p style={{ textAlign: 'center', marginTop: '1.75rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            Authorized campus access only.
+          {/* Demo Accounts Quick Fill */}
+          <div style={{ marginTop: '1.75rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-subtle)' }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <Sparkles size={13} style={{ color: 'var(--color-amber)' }} /> Instant Demo Logins
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ 
+                  width: '100%', 
+                  justifyContent: 'space-between', 
+                  fontSize: '0.82rem',
+                  padding: '0.65rem 0.85rem',
+                  textAlign: 'left'
+                }}
+                onClick={() => handleQuickLogin('student@campus.edu', 'student123')}
+                disabled={loading}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <UserCheck size={15} style={{ color: 'var(--color-blue)' }} />
+                  <strong>Student:</strong> Rahul Sharma
+                </span>
+                <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>student@campus.edu</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ 
+                  width: '100%', 
+                  justifyContent: 'space-between', 
+                  fontSize: '0.82rem',
+                  padding: '0.65rem 0.85rem',
+                  textAlign: 'left'
+                }}
+                onClick={() => handleQuickLogin('admin@campus.edu', 'admin123')}
+                disabled={loading}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <ShieldCheck size={15} style={{ color: '#a855f7' }} />
+                  <strong>Admin:</strong> Dr. Anita Rao
+                </span>
+                <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>admin@campus.edu</span>
+              </button>
+            </div>
+          </div>
+
+          <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+            Institutional Portal • Encrypted JWT Authentication
           </p>
         </div>
       </div>

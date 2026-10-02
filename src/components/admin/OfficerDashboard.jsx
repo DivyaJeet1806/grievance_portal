@@ -48,11 +48,15 @@ const urgencyColors = {
   Critical: '#f43f5e'
 };
 
-const ConfirmResolutionPanel = ({ ticket, onClose }) => {
+const ConfirmResolutionPanel = ({ ticket, onClose, initialActionType = 'Resolved' }) => {
   const { updateGrievanceStatus, showToast } = useGrievance();
   const { user } = useAuth();
-  const [resolutionNote, setResolutionNote] = useState('');
-  const [actionType, setActionType] = useState('Resolved');
+  const [actionType, setActionType] = useState(initialActionType);
+  const [resolutionNote, setResolutionNote] = useState(
+    initialActionType === 'In Progress'
+      ? 'Investigation and active repair work initiated by department officer.'
+      : ''
+  );
   const [submitting, setSubmitting] = useState(false);
 
   const handleConfirm = async () => {
@@ -159,6 +163,7 @@ const ConfirmResolutionPanel = ({ ticket, onClose }) => {
 const GrievanceCard = ({ ticket }) => {
   const [expanded, setExpanded] = useState(false);
   const [showResolution, setShowResolution] = useState(false);
+  const [panelActionType, setPanelActionType] = useState('Resolved');
   const sc = statusColors[ticket.status] || statusColors['Submitted'];
   const isResolved = ticket.status === 'Resolved' || ticket.status === 'Rejected';
 
@@ -200,19 +205,49 @@ const GrievanceCard = ({ ticket }) => {
             </span>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          {!isResolved && ticket.status !== 'In Progress' && (
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={e => {
+                e.stopPropagation();
+                setPanelActionType('In Progress');
+                setShowResolution(true);
+                setExpanded(true);
+              }}
+              style={{
+                fontSize: '0.78rem',
+                padding: '0.35rem 0.65rem',
+                color: '#8b5cf6',
+                borderColor: 'rgba(139,92,246,0.35)',
+                background: 'rgba(139,92,246,0.08)'
+              }}
+              title="Start Work (In Progress)"
+            >
+              <Clock size={13} />
+              <span>In Progress</span>
+            </button>
+          )}
+
           {!isResolved && (
             <button
               type="button"
               className="btn btn-primary btn-sm"
-              onClick={e => { e.stopPropagation(); setShowResolution(r => !r); setExpanded(true); }}
-              style={{ background: 'linear-gradient(135deg, #10b981, #059669)', fontSize: '0.78rem' }}
-              title="Confirm Resolution"
+              onClick={e => {
+                e.stopPropagation();
+                setPanelActionType('Resolved');
+                setShowResolution(true);
+                setExpanded(true);
+              }}
+              style={{ background: 'linear-gradient(135deg, #10b981, #059669)', fontSize: '0.78rem', padding: '0.35rem 0.75rem' }}
+              title="Mark Solved"
             >
-              <CheckCircle2 size={14} />
-              <span>Resolve</span>
+              <CheckCircle2 size={13} />
+              <span>Mark Solved</span>
             </button>
           )}
+
           {isResolved && (
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', color: ticket.status === 'Resolved' ? '#10b981' : '#f43f5e', fontWeight: 700 }}>
               {ticket.status === 'Resolved' ? <BadgeCheck size={15} /> : <XCircle size={15} />}
@@ -277,7 +312,7 @@ const GrievanceCard = ({ ticket }) => {
 
           {/* Inline Resolution Panel */}
           {showResolution && !isResolved && (
-            <ConfirmResolutionPanel ticket={ticket} onClose={() => setShowResolution(false)} />
+            <ConfirmResolutionPanel ticket={ticket} initialActionType={panelActionType} onClose={() => setShowResolution(false)} />
           )}
         </div>
       )}
@@ -305,7 +340,7 @@ export const OfficerDashboard = () => {
     : deptGrievances.filter(g => g.status === statusFilter);
 
   const total = deptGrievances.length;
-  const pending = deptGrievances.filter(g => g.status === 'Submitted' || g.status === 'Under Review').length;
+  const pending = deptGrievances.filter(g => g.status === 'Submitted').length;
   const inProgress = deptGrievances.filter(g => g.status === 'In Progress').length;
   const resolved = deptGrievances.filter(g => g.status === 'Resolved').length;
   const critical = deptGrievances.filter(g => g.urgency === 'Critical' && g.status !== 'Resolved').length;

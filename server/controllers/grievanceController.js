@@ -307,7 +307,7 @@ export async function getAnalytics(req, res) {
     }
 
     const totalCount = list.length;
-    const pendingCount = list.filter(g => g.status === 'Submitted' || g.status === 'Under Review').length;
+    const pendingCount = list.filter(g => g.status === 'Submitted').length;
     const inProgressCount = list.filter(g => g.status === 'In Progress').length;
     const resolvedCount = list.filter(g => g.status === 'Resolved').length;
     const criticalCount = list.filter(g => g.urgency === 'Critical' && g.status !== 'Resolved').length;
