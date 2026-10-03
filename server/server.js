@@ -39,10 +39,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: 'Internal Server Error', error: err.message });
 });
 
-// Initialize database connection and start HTTP server
-async function startServer() {
-  await connectDB();
-
+// Initialize HTTP server immediately and connect database in background
+function startServer() {
   app.listen(PORT, () => {
     console.log(`===============================================`);
     console.log(`🚀 GrievanceHub API Server Running`);
@@ -50,6 +48,11 @@ async function startServer() {
     console.log(`📡 URL: http://localhost:${PORT}`);
     console.log(`🩺 Health: http://localhost:${PORT}/api/health`);
     console.log(`===============================================`);
+  });
+
+  // Attempt DB connection in background without delaying server startup
+  connectDB().catch(err => {
+    console.warn('⚠️ [MongoDB] Background connection attempt failed:', err.message);
   });
 }
 

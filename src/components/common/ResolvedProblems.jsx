@@ -25,7 +25,6 @@ import {
   ArrowUpDown,
   LayoutGrid,
   List,
-  ShieldAlert,
   SlidersHorizontal
 } from 'lucide-react';
 
@@ -336,47 +335,15 @@ export const ResolvedProblems = () => {
                 <FileCheck size={24} />
               </div>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                  <h1 style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, lineHeight: 1.15 }}>
-                    Solved Problems
-                  </h1>
-                  <span style={{
-                    fontSize: '0.74rem',
-                    fontWeight: 800,
-                    padding: '0.2rem 0.65rem',
-                    borderRadius: 'var(--radius-full)',
-                    background: 'rgba(16,185,129,0.15)',
-                    color: '#10b981',
-                    border: '1px solid rgba(16,185,129,0.35)'
-                  }}>
-                    {totalResolved} Solved
-                  </span>
-                </div>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0.25rem 0 0' }}>
-                  Institutional repository of all solved and closed campus grievances, sorted and categorized by department.
-                </p>
+                <h1 style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, lineHeight: 1.15 }}>
+                  Solved Problems
+                </h1>
               </div>
             </div>
           </div>
 
-          {/* Role badge and back button */}
+          {/* Back button */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            {user?.role === 'admin' && (
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                fontSize: '0.78rem',
-                fontWeight: 700,
-                color: '#a855f7',
-                padding: '0.35rem 0.8rem',
-                borderRadius: 'var(--radius-full)',
-                background: 'rgba(168, 85, 247, 0.1)',
-                border: '1px solid rgba(168, 85, 247, 0.25)'
-              }}>
-                <ShieldAlert size={13} /> Administrative Department Oversight
-              </span>
-            )}
             <button
               id="back-to-active-btn"
               type="button"

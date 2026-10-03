@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useGrievance } from '../../context/GrievanceContext';
-import { 
-  KeyRound, 
-  AlertCircle, 
-  UserCheck, 
-  ShieldCheck, 
+import {
+  KeyRound,
+  AlertCircle,
+  UserCheck,
+  ShieldCheck,
   Sparkles,
   LogIn
 } from 'lucide-react';
@@ -54,32 +54,26 @@ export const LoginPage = () => {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '2rem 1.5rem', background: 'radial-gradient(ellipse at 50% 10%, rgba(99,102,241,0.15) 0%, rgba(15,23,42,0.95) 75%)' }}>
-      
+
       {/* Brand Header */}
-      <div style={{ textAlign: 'center', marginBottom: '1.75rem', maxWidth: '460px' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.4rem 1rem', borderRadius: 'var(--radius-full)', background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.25)', color: 'var(--primary-400)', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.85rem' }}>
-          <ShieldCheck size={16} /> Campus Grievance Redressal Portal
-        </div>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.4rem 0', color: 'var(--text-primary)' }}>
-          Grievance<span style={{ color: 'var(--primary-400)' }}>Hub</span>
+      <div style={{ textAlign: 'center', marginBottom: '1.75rem', maxWidth: '480px' }}>
+        <h1 style={{ fontSize: '1.85rem', fontWeight: 800, margin: '0', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+          IMSEC <span style={{ background: 'linear-gradient(135deg, #00bfff 0%, #a855f7 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Grievance Portal</span>
         </h1>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
-          Direct redressal tracking, transparent SLAs, and verified resolutions
-        </p>
       </div>
 
       {/* Centered Auth Card */}
-      <div className="glass-panel" style={{ 
-        maxWidth: '460px', 
-        width: '100%', 
+      <div className="glass-panel" style={{
+        maxWidth: '460px',
+        width: '100%',
         overflow: 'hidden',
         boxShadow: 'var(--shadow-float)',
         border: '1px solid var(--border-subtle)'
       }}>
         {/* Card Header */}
-        <div style={{ 
-          padding: '1.15rem 1.75rem', 
-          borderBottom: '1px solid var(--border-subtle)', 
+        <div style={{
+          padding: '1.15rem 1.75rem',
+          borderBottom: '1px solid var(--border-subtle)',
           background: 'rgba(255,255,255,0.02)',
           display: 'flex',
           alignItems: 'center',
@@ -105,11 +99,11 @@ export const LoginPage = () => {
         <div style={{ padding: '2rem 1.75rem' }}>
           {/* Error Banner */}
           {errorMsg && (
-            <div style={{ 
-              background: 'var(--color-rose-bg)', 
-              border: '1px solid rgba(244, 63, 94, 0.3)', 
-              borderRadius: 'var(--radius-md)', 
-              padding: '0.75rem 1rem', 
+            <div style={{
+              background: 'var(--color-rose-bg)',
+              border: '1px solid rgba(244, 63, 94, 0.3)',
+              borderRadius: 'var(--radius-md)',
+              padding: '0.75rem 1rem',
               marginBottom: '1.25rem',
               color: 'var(--color-rose)',
               fontSize: '0.85rem',
@@ -132,7 +126,7 @@ export const LoginPage = () => {
                 required
                 autoFocus
                 className="form-control"
-                placeholder="e.g. student@campus.edu"
+                placeholder=""
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -178,9 +172,9 @@ export const LoginPage = () => {
               <button
                 type="button"
                 className="btn btn-secondary"
-                style={{ 
-                  width: '100%', 
-                  justifyContent: 'space-between', 
+                style={{
+                  width: '100%',
+                  justifyContent: 'space-between',
                   fontSize: '0.82rem',
                   padding: '0.65rem 0.85rem',
                   textAlign: 'left'
@@ -198,9 +192,9 @@ export const LoginPage = () => {
               <button
                 type="button"
                 className="btn btn-secondary"
-                style={{ 
-                  width: '100%', 
-                  justifyContent: 'space-between', 
+                style={{
+                  width: '100%',
+                  justifyContent: 'space-between',
                   fontSize: '0.82rem',
                   padding: '0.65rem 0.85rem',
                   textAlign: 'left'

@@ -174,7 +174,12 @@ export const GrievanceProvider = ({ children }) => {
         })
       });
 
-      const json = await res.json();
+      let json = {};
+      try {
+        json = await res.json();
+      } catch {
+        // non-json response
+      }
 
       if (res.status === 401 || res.status === 403) {
         showToast(json.message || 'Authentication error: Admin JWT token required.', 'error');
@@ -332,7 +337,12 @@ export const GrievanceProvider = ({ children }) => {
         }
       });
 
-      const json = await res.json();
+      let json = {};
+      try {
+        json = await res.json();
+      } catch {
+        // non-json response
+      }
 
       if (res.status === 401 || res.status === 403) {
         showToast(json.message || 'Admin login required to reset database.', 'error');

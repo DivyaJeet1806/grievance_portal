@@ -111,15 +111,15 @@ export const LodgeForm = () => {
       {/* Centered Main Lodge Grievance Form */}
       <div className="glass-panel form-card">
         <div style={{ marginBottom: '1.75rem' }}>
-          <h2 style={{ fontSize: '1.85rem', fontWeight: 800 }}>Lodge a Formal Grievance</h2>
+          <h2 style={{ fontSize: '1.85rem', fontWeight: 800 }}>Grievance Form</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginTop: '0.35rem' }}>
-            Fill in the details below. Your submission will receive a tamper-proof ticket ID and an assigned SLA redressal window.
+            Fill in the details below
           </p>
         </div>
 
         <form onSubmit={handleSubmit}>
           {/* Complainant Identity Details */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
+          <div className="form-grid-2col">
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label" htmlFor="complainant-name">
                 Full Name / Roll No. <span style={{ color: 'var(--color-rose)' }}>*</span>
@@ -128,7 +128,7 @@ export const LodgeForm = () => {
                 id="complainant-name"
                 type="text"
                 required
-                placeholder="e.g. Aryan Mehra (EC-402)"
+                placeholder=" "
                 className="form-control"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -142,7 +142,7 @@ export const LodgeForm = () => {
                 id="complainant-email"
                 type="email"
                 required
-                placeholder="e.g. aryan@institute.edu"
+                placeholder=" "
                 className="form-control"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -153,7 +153,7 @@ export const LodgeForm = () => {
           {/* Title */}
           <div className="form-group">
             <label className="form-label" htmlFor="grievance-title">
-              <span>Grievance Summary / Title <span style={{ color: 'var(--color-rose)' }}>*</span></span>
+              <span>Grievance Summary  <span style={{ color: 'var(--color-rose)' }}>*</span></span>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Brief & specific</span>
             </label>
             <input
@@ -167,8 +167,8 @@ export const LodgeForm = () => {
             />
           </div>
 
-          {/* Category & Location Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
+          {/* Category, Urgency & Location Grid (3-column layout) */}
+          <div className="form-grid-3col">
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label" htmlFor="grievance-category">
                 Department / Category <span style={{ color: 'var(--color-rose)' }}>*</span>
@@ -186,8 +186,29 @@ export const LodgeForm = () => {
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="form-label" htmlFor="grievance-urgency">
+                Urgency <span style={{ color: 'var(--color-rose)' }}>*</span>
+              </label>
+              <select
+                id="grievance-urgency"
+                className="form-control"
+                value={formData.urgency}
+                onChange={(e) => setFormData({ ...formData, urgency: e.target.value })}
+              >
+                {URGENCY_LEVELS.map((lvl) => {
+                  const val = typeof lvl === 'string' ? lvl : lvl.value;
+                  return (
+                    <option key={val} value={val}>
+                      {val}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label" htmlFor="grievance-location">
-                Exact Location / Campus Wing
+                Exact Location
               </label>
               <input
                 id="grievance-location"
@@ -228,42 +249,6 @@ export const LodgeForm = () => {
               </button>
             </div>
           )}
-
-
-          {/* Urgency Level selection */}
-          <div className="form-group">
-            <label className="form-label">
-              <span>Urgency & Resolution Target SLA <span style={{ color: 'var(--color-rose)' }}>*</span></span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Sets escalation timeline</span>
-            </label>
-            <div className="urgency-grid">
-              {URGENCY_LEVELS.map((lvl) => {
-                const val = typeof lvl === 'string' ? lvl : lvl.value;
-                const sla = typeof lvl === 'string' ? (lvl === 'Critical' ? 12 : lvl === 'High' ? 24 : lvl === 'Low' ? 72 : 48) : (lvl.sla || 48);
-                const desc = typeof lvl === 'string' ? lvl : (lvl.label?.includes('(') ? lvl.label.split('(')[1]?.replace(')', '') : lvl.label || val);
-                return (
-                  <div
-                    key={val}
-                    className={`urgency-option ${formData.urgency === val ? 'selected' : ''}`}
-                    onClick={() => setFormData({ ...formData, urgency: val })}
-                  >
-                    <div className="urgency-radio-indicator" />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontWeight: 700, fontSize: '0.88rem' }}>{val}</span>
-                        <span className="sla-badge normal" style={{ fontSize: '0.7rem' }}>
-                          <Clock size={11} /> {sla}h SLA
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-                        {desc}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
 
           {/* Detailed Description */}
           <div className="form-group">

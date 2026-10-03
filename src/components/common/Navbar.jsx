@@ -8,7 +8,6 @@ import {
   Layers,
   BarChart3,
   ListFilter,
-  RotateCcw,
   KeyRound,
   LogOut,
   Building2,
@@ -16,13 +15,26 @@ import {
   FileCheck
 } from 'lucide-react';
 
+// Clean user display name & initial
+const getCleanName = (fullName) => {
+  if (!fullName) return 'User';
+  // Strip trailing notes in parentheses, e.g. "Dr. Anita Rao (Dean of Student Welfare)" -> "Dr. Anita Rao"
+  return fullName.split('(')[0].trim();
+};
+
+const getAvatarInitial = (fullName) => {
+  const clean = getCleanName(fullName);
+  // If name starts with titles like Dr., Prof., Er., Mr., Mrs., Ms., use the initial of actual name (e.g. "A" for Dr. Anita)
+  const withoutTitle = clean.replace(/^(Dr\.|Prof\.|Er\.|Mr\.|Mrs\.|Ms\.|Dr|Prof|Er|Mr|Mrs|Ms)\s+/i, '');
+  return (withoutTitle.charAt(0) || clean.charAt(0) || 'U').toUpperCase();
+};
+
 export const Navbar = () => {
   const {
     activeRole,
     setActiveRole,
     activeTab,
     setActiveTab,
-    resetToDefault,
     apiConnected
   } = useGrievance();
 
@@ -38,12 +50,16 @@ export const Navbar = () => {
       <div className="navbar-inner">
         {/* Brand */}
         <div className="brand" onClick={() => setActiveTab(activeRole === 'complainant' ? 'lodge' : 'overview')}>
-          <div className="brand-icon-wrapper">
-            <ShieldAlert size={22} />
+          <div className="brand-icon-wrapper" style={{ background: '#ffffff', padding: '3px', overflow: 'hidden', boxShadow: '0 4px 14px rgba(0,0,0,0.25)' }}>
+            <img
+              src="/imsec-logo.png"
+              alt="IMSEC Logo"
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
           </div>
           <div>
-            <div className="brand-title">GrievanceHub</div>
-            <div className="brand-subtitle">Redressal Portal</div>
+            <div className="brand-title">IMSEC</div>
+            <div className="brand-subtitle">GrievancePortal</div>
           </div>
         </div>
 
@@ -57,7 +73,7 @@ export const Navbar = () => {
                 onClick={() => setActiveTab('lodge')}
               >
                 <FileText size={16} />
-                <span>Lodge Grievance</span>
+                <span>Grievance Form</span>
               </button>
               <button
                 id="nav-tab-track"
@@ -157,14 +173,14 @@ export const Navbar = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '0.72rem',
+                  fontSize: '0.74rem',
                   fontWeight: 800
                 }}>
-                  {(user.name || 'User').charAt(0)}
+                  {getAvatarInitial(user.name)}
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                    {(user.name || 'User').split(' ')[0]}
+                <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
+                    {getCleanName(user.name)}
                   </span>
                   <span style={{ fontSize: '0.68rem', color: user.role === 'admin' ? '#a855f7' : 'var(--color-blue)', textTransform: 'uppercase', fontWeight: 700 }}>
                     {user.role}
@@ -192,20 +208,6 @@ export const Navbar = () => {
               <span>Sign In / Login</span>
             </button>
           )}
-
-          {/* Reset Demo Data Button */}
-          <button
-            className="btn-icon"
-            title="Reset to Demo Grievances"
-            onClick={() => {
-              if (window.confirm("Reset all grievances back to demo initial state? (Requires Admin login)")) {
-                resetToDefault();
-              }
-            }}
-          >
-            <RotateCcw size={17} />
-          </button>
-
         </div>
       </div>
     </header>

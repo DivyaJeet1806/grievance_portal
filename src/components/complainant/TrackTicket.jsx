@@ -114,7 +114,7 @@ export const TrackTicket = () => {
       <div className="glass-panel track-header-card">
         <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>Track Your Grievance Status</h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginTop: '0.35rem' }}>
-          Enter your unique Ticket ID below to inspect real-time progress, committee notes, and SLA compliance.
+          Enter your unique Ticket ID below
         </p>
 
         <form onSubmit={handleSearch} className="track-search-box">

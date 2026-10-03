@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useGrievance } from '../../context/GrievanceContext';
 import { useAuth } from '../../context/AuthContext';
 import { DEPARTMENT_DIRECTORY, getDepartmentForCategory } from '../../data/departmentMapping';
@@ -21,7 +21,9 @@ import {
   Hash,
   ArrowRight,
   Filter,
-  Inbox
+  Inbox,
+  Check,
+  Search
 } from 'lucide-react';
 
 // Department selector so officer can pick which dept they represent
@@ -325,6 +327,29 @@ export const OfficerDashboard = () => {
   const [selectedDept, setSelectedDept] = useState(DEPARTMENTS[0]);
   // Default to ACTIVE so resolved problems are removed from active department queue
   const [statusFilter, setStatusFilter] = useState('ACTIVE');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [deptSearch, setDeptSearch] = useState('');
+  const dropdownRef = useRef(null);
+
+  // Close dropdown on click outside or Escape
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   // Filter grievances belonging to selected department
   const deptGrievances = grievances.filter(g => {
@@ -356,30 +381,231 @@ export const OfficerDashboard = () => {
           </div>
           <div>
             <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 }}>Department Officer Portal</h1>
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>View assigned grievances and confirm problem resolution</p>
           </div>
         </div>
       </div>
 
-      {/* Department Selector */}
-      <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-        <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-          <Building2 size={13} /> Select Your Department
+      {/* Department Selector as Dropdown List */}
+      <div className="glass-panel" style={{ padding: '1.25rem 1.5rem', marginBottom: '1.5rem', position: 'relative', zIndex: isDropdownOpen ? 100 : 2 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.65rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <label
+            htmlFor="officer-department-select"
+            style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+          >
+            <Building2 size={13} /> Select Your Department
+          </label>
+          <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+            {DEPARTMENTS.length} divisions available
+          </span>
         </div>
-        <div className="officer-dept-grid">
-          {DEPARTMENTS.map(dept => (
-            <button
-              key={dept.category}
-              type="button"
-              className={`officer-dept-chip ${selectedDept.category === dept.category ? 'active' : ''}`}
-              onClick={() => { setSelectedDept(dept); setStatusFilter('ALL'); }}
-            >
-              <span style={{ fontWeight: 700, fontSize: '0.84rem', display: 'block', lineHeight: 1.2 }}>{dept.department}</span>
-              <span style={{ fontSize: '0.72rem', color: selectedDept.category === dept.category ? 'rgba(255,255,255,0.75)' : 'var(--text-muted)', display: 'block', marginTop: '0.2rem' }}>
-                {dept.officer.split('(')[0].trim()}
+
+        {/* Dropdown Container */}
+        <div ref={dropdownRef} className="officer-dept-dropdown-wrapper" style={{ position: 'relative', zIndex: isDropdownOpen ? 100 : 1 }}>
+          {/* Synchronized accessible select element */}
+          <select
+            id="officer-department-select"
+            value={selectedDept.category}
+            onChange={(e) => {
+              const match = DEPARTMENTS.find(d => d.category === e.target.value);
+              if (match) {
+                setSelectedDept(match);
+                setStatusFilter('ALL');
+              }
+            }}
+            style={{
+              position: 'absolute',
+              width: '1px',
+              height: '1px',
+              padding: 0,
+              margin: '-1px',
+              overflow: 'hidden',
+              clip: 'rect(0,0,0,0)',
+              border: 0,
+              pointerEvents: 'none'
+            }}
+            aria-hidden="true"
+            tabIndex={-1}
+          >
+            {DEPARTMENTS.map(d => (
+              <option key={d.category} value={d.category}>
+                {d.department} ({d.officer.split('(')[0].trim()})
+              </option>
+            ))}
+          </select>
+
+          {/* Custom Dropdown Trigger Button */}
+          <button
+            id="officer-department-dropdown-btn"
+            type="button"
+            className={`officer-dept-dropdown-trigger ${isDropdownOpen ? 'open' : ''}`}
+            onClick={() => setIsDropdownOpen(prev => !prev)}
+            aria-haspopup="listbox"
+            aria-expanded={isDropdownOpen}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', minWidth: 0 }}>
+              <div style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: 'var(--radius-sm)',
+                background: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(16,185,129,0.2))',
+                border: '1px solid rgba(99,102,241,0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <Building2 size={18} style={{ color: 'var(--primary-500)' }} />
+              </div>
+              <div style={{ minWidth: 0, textAlign: 'left' }}>
+                <div style={{ fontWeight: 700, fontSize: '0.94rem', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {selectedDept.department}
+                </div>
+                <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)', marginTop: '0.15rem', display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                  <span style={{ color: 'var(--color-blue)', fontWeight: 600 }}>{selectedDept.officer.split('(')[0].trim()}</span>
+                  <span>•</span>
+                  <span>{deptGrievances.length} assigned grievance{deptGrievances.length === 1 ? '' : 's'}</span>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexShrink: 0 }}>
+              <span style={{
+                fontSize: '0.72rem',
+                padding: '0.2rem 0.6rem',
+                borderRadius: 'var(--radius-full)',
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid var(--border-subtle)',
+                color: 'var(--text-secondary)',
+                fontWeight: 600
+              }}>
+                Change Division
               </span>
-            </button>
-          ))}
+              <ChevronDown
+                size={18}
+                style={{
+                  color: 'var(--text-muted)',
+                  transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                  transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+                }}
+              />
+            </div>
+          </button>
+
+          {/* Dropdown Menu List */}
+          {isDropdownOpen && (
+            <div className="officer-dept-dropdown-menu" role="listbox">
+              {/* Search Bar inside dropdown */}
+              <div style={{ padding: '0.3rem 0.35rem 0.6rem 0.35rem', borderBottom: '1px solid var(--border-subtle)', marginBottom: '0.35rem' }}>
+                <div style={{ position: 'relative' }}>
+                  <Search size={14} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+                  <input
+                    type="text"
+                    placeholder="Search division or officer name..."
+                    value={deptSearch}
+                    onChange={(e) => setDeptSearch(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem 0.75rem 0.5rem 2.2rem',
+                      background: 'var(--surface-input)',
+                      border: '1px solid var(--border-subtle)',
+                      borderRadius: 'var(--radius-sm)',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.82rem',
+                      outline: 'none'
+                    }}
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              {/* Department Items */}
+              {DEPARTMENTS.filter(d => 
+                d.department.toLowerCase().includes(deptSearch.toLowerCase()) ||
+                d.officer.toLowerCase().includes(deptSearch.toLowerCase())
+              ).map(dept => {
+                const isSelected = selectedDept.category === dept.category;
+                const count = grievances.filter(g => {
+                  const deptInfo = getDepartmentForCategory(g.category);
+                  const assignedDept = g.department || deptInfo.department;
+                  return assignedDept === dept.department;
+                }).length;
+
+                return (
+                  <button
+                    key={dept.category}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    className={`officer-dept-dropdown-item ${isSelected ? 'active' : ''}`}
+                    onClick={() => {
+                      setSelectedDept(dept);
+                      setStatusFilter('ALL');
+                      setIsDropdownOpen(false);
+                      setDeptSearch('');
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
+                      <div style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: 'var(--radius-sm)',
+                        background: isSelected ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.04)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
+                      }}>
+                        <Building2 size={15} style={{ color: isSelected ? 'var(--primary-500)' : 'var(--text-muted)' }} />
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{
+                          fontWeight: isSelected ? 700 : 600,
+                          fontSize: '0.88rem',
+                          color: isSelected ? '#fff' : 'var(--text-primary)',
+                          lineHeight: 1.25
+                        }}>
+                          {dept.department}
+                        </div>
+                        <div style={{
+                          fontSize: '0.74rem',
+                          color: isSelected ? 'rgba(255,255,255,0.7)' : 'var(--text-muted)',
+                          marginTop: '0.15rem'
+                        }}>
+                          {dept.officer.split('(')[0].trim()}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
+                      <span style={{
+                        fontSize: '0.72rem',
+                        padding: '0.2rem 0.55rem',
+                        borderRadius: 'var(--radius-full)',
+                        background: count > 0 ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.04)',
+                        color: count > 0 ? 'var(--primary-500)' : 'var(--text-muted)',
+                        fontWeight: 600
+                      }}>
+                        {count} {count === 1 ? 'ticket' : 'tickets'}
+                      </span>
+                      {isSelected && (
+                        <Check size={16} style={{ color: '#10b981' }} />
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+
+              {DEPARTMENTS.filter(d => 
+                d.department.toLowerCase().includes(deptSearch.toLowerCase()) ||
+                d.officer.toLowerCase().includes(deptSearch.toLowerCase())
+              ).length === 0 && (
+                <div style={{ padding: '1.25rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.82rem' }}>
+                  No department matching "{deptSearch}"
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

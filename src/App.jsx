@@ -5,6 +5,7 @@ import { Navbar } from './components/common/Navbar';
 import { Toast } from './components/common/Toast';
 import { AuthModal } from './components/common/AuthModal';
 import { LoginPage } from './components/auth/LoginPage';
+import { LoadingScreen } from './components/common/LoadingScreen';
 import { LodgeForm } from './components/complainant/LodgeForm';
 import { TrackTicket } from './components/complainant/TrackTicket';
 import { MyGrievances } from './components/complainant/MyGrievances';
@@ -72,9 +73,9 @@ const MainLayout = () => {
       }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-primary)' }}>
-              <ShieldAlert size={18} style={{ color: 'var(--primary-500)' }} />
-              GrievanceHub Redressal System
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-primary)' }}>
+              <img src="/imsec-logo.png" alt="IMSEC" style={{ width: '24px', height: '24px', objectFit: 'contain', background: '#fff', borderRadius: '4px', padding: '1px' }} />
+              IMSEC Grievance Portal
             </div>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
               Institutional Internal Quality Assurance Cell (IQAC) & Grievance Redressal Committee Compliant.
@@ -102,29 +103,17 @@ const MainLayout = () => {
 };
 
 const AppContent = () => {
-  const { currentView, loading, isAuthenticated } = useAuth();
+  const { loading, isAuthenticated } = useAuth();
+  const [showIntro, setShowIntro] = React.useState(true);
 
-  // Show spinner while JWT is being verified on mount
-  if (loading) {
+  // Show IMSEC Neon Loading Screen before the login page
+  if (showIntro) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        flexDirection: 'column',
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        gap: '1rem'
-      }}>
-        <div style={{ 
-          width: '48px', 
-          height: '48px', 
-          borderRadius: '50%', 
-          border: '3px solid var(--border-subtle)',
-          borderTopColor: 'var(--primary-500)',
-          animation: 'spin 0.75s linear infinite'
-        }} />
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Verifying session…</p>
-      </div>
+      <LoadingScreen 
+        isLoading={loading} 
+        duration={3200}
+        onComplete={() => setShowIntro(false)} 
+      />
     );
   }
 

@@ -83,7 +83,7 @@ export const AuthModal = () => {
               type="email"
               required
               className="form-control"
-              placeholder="e.g. student@campus.edu or admin@campus.edu"
+              placeholder=""
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
