@@ -7,6 +7,7 @@ const GrievanceContext = createContext();
 
 const THEME_KEY = 'grievance_hub_theme';
 const ROLE_KEY = 'grievance_hub_active_role';
+const GRIEVANCES_STORAGE_KEY = 'imsec_grievances_store';
 
 export const GrievanceProvider = ({ children }) => {
   const { getAuthHeaders, user } = useAuth();
@@ -20,7 +21,18 @@ export const GrievanceProvider = ({ children }) => {
   });
 
   // Grievances state
-  const [grievances, setGrievances] = useState(INITIAL_GRIEVANCES);
+  const [grievances, setGrievances] = useState(() => {
+    try {
+      const stored = localStorage.getItem(GRIEVANCES_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {
+      // ignore
+    }
+    return INITIAL_GRIEVANCES;
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [apiConnected, setApiConnected] = useState(false);
 
@@ -64,6 +76,15 @@ export const GrievanceProvider = ({ children }) => {
   useEffect(() => {
     fetchGrievances();
   }, [fetchGrievances]);
+
+  // Sync grievances to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(GRIEVANCES_STORAGE_KEY, JSON.stringify(grievances));
+    } catch {
+      // ignore
+    }
+  }, [grievances]);
 
   // Sync theme - dark mode default
   useEffect(() => {
@@ -351,7 +372,7 @@ export const GrievanceProvider = ({ children }) => {
 
       if (res.ok) {
         await fetchGrievances();
-        showToast('Reset Node.js backend database to demo records.', 'info');
+        showToast('Reset Node.js backend database.', 'info');
         return;
       }
     } catch (err) {
@@ -359,7 +380,10 @@ export const GrievanceProvider = ({ children }) => {
     }
 
     setGrievances(INITIAL_GRIEVANCES);
-    showToast('Reset database to demo records.', 'info');
+    try {
+      localStorage.removeItem(GRIEVANCES_STORAGE_KEY);
+    } catch {}
+    showToast('Reset database.', 'info');
   };
 
   // Analytics metrics

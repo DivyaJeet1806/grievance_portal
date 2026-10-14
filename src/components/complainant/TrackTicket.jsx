@@ -42,10 +42,14 @@ export const TrackTicket = () => {
       setSearchInput(trackedTicketId);
       const found = grievances.find(g => g.id.toLowerCase() === trackedTicketId.trim().toLowerCase());
       setSelectedTicket(found || null);
-    } else if (grievances.length > 0 && !selectedTicket) {
-      // Default to first item for great initial impression
-      setSelectedTicket(grievances[0]);
-      setSearchInput(grievances[0].id);
+    } else if (grievances.length > 0) {
+      if (!selectedTicket || !grievances.some(g => g.id === selectedTicket.id)) {
+        setSelectedTicket(grievances[0]);
+        setSearchInput(grievances[0].id);
+      }
+    } else {
+      setSelectedTicket(null);
+      setSearchInput('');
     }
   }, [trackedTicketId, grievances]);
 
@@ -122,7 +126,7 @@ export const TrackTicket = () => {
             id="ticket-search-input"
             type="text"
             className="form-control track-search-input"
-            placeholder="e.g. GRV-2026-1082"
+            placeholder="e.g. GRV-2026-1001"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
           />
