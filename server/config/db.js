@@ -29,25 +29,34 @@ try {
 }
 
 export async function connectDB() {
+  if (mongoose.connection.readyState === 1) {
+    return true;
+  }
+  if (mongoose.connection.readyState === 2) {
+    return false;
+  }
+
   const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/grievancehub';
 
-  // Handle connection events
-  mongoose.connection.on('connected', async () => {
-    console.log('📦 [MongoDB] Successfully connected to Database');
-    try {
-      await seedInitialDataIfEmpty();
-    } catch (e) {
-      console.warn('⚠️ [MongoDB] Seed warning:', e.message);
-    }
-  });
+  // Handle connection events if not already registered
+  if (mongoose.connection.listenerCount('connected') === 0) {
+    mongoose.connection.on('connected', async () => {
+      console.log('📦 [MongoDB] Successfully connected to Database');
+      try {
+        await seedInitialDataIfEmpty();
+      } catch (e) {
+        console.warn('⚠️ [MongoDB] Seed warning:', e.message);
+      }
+    });
 
-  mongoose.connection.on('error', (err) => {
-    console.error('❌ [MongoDB] Connection Error:', err.message);
-  });
+    mongoose.connection.on('error', (err) => {
+      console.error('❌ [MongoDB] Connection Error:', err.message);
+    });
 
-  mongoose.connection.on('disconnected', () => {
-    console.warn('⚠️ [MongoDB] Disconnected from database');
-  });
+    mongoose.connection.on('disconnected', () => {
+      console.warn('⚠️ [MongoDB] Disconnected from database');
+    });
+  }
 
   try {
     console.log(`🔌 [MongoDB] Connecting to: ${uri.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@')} ...`);

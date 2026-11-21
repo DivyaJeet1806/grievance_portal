@@ -4,7 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-import { connectDB, getDBStatus } from './config/db.js';
+import { connectDB, getDBStatus, isDBConnected } from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import grievanceRoutes from './routes/grievanceRoutes.js';
 
@@ -20,8 +20,22 @@ app.use(cors());
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
-// Health Check with Database Status
-app.get('/api/health', (req, res) => {
+// Ensure database connection before fulfilling requests (critical for serverless / Vercel)
+app.use(async (req, res, next) => {
+  if (!isDBConnected()) {
+    try {
+      await connectDB();
+    } catch (e) {
+      console.warn('⚠️ [DB Request Connect Warning]:', e.message);
+    }
+  }
+  next();
+});
+
+// API Router
+const apiRouter = express.Router();
+
+apiRouter.get('/health', (req, res) => {
   res.json({
     status: 'online',
     service: 'GrievanceHub Node.js API Service with MongoDB & JWT Security',
@@ -31,9 +45,12 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/grievances', grievanceRoutes);
+apiRouter.use('/auth', authRoutes);
+apiRouter.use('/grievances', grievanceRoutes);
+
+// Mount API router on both '/api' and '/' (handles both local proxy and Vercel serverless rewrites)
+app.use('/api', apiRouter);
+app.use('/', apiRouter);
 
 // Serve Vite frontend in production or when dist folder exists
 if (fs.existsSync(distPath)) {
@@ -76,5 +93,10 @@ function startServer() {
   });
 }
 
-startServer();
+// Only start standalone HTTP server when not running in Vercel Serverless environment
+if (process.env.VERCEL !== '1') {
+  startServer();
+}
+
+export default app;
 
