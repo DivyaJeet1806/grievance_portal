@@ -75,7 +75,7 @@ export const GrievanceProvider = ({ children }) => {
 
   useEffect(() => {
     fetchGrievances();
-  }, [fetchGrievances]);
+  }, [fetchGrievances, activeTab, activeRole]);
 
   // Sync grievances to localStorage
   useEffect(() => {
@@ -379,6 +379,8 @@ export const GrievanceProvider = ({ children }) => {
         grievances,
         isLoading,
         apiConnected,
+        refreshGrievances: fetchGrievances,
+        fetchGrievances,
         trackedTicketId,
         setTrackedTicketId,
         addGrievance,
