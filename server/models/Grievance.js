@@ -67,7 +67,20 @@ const grievanceSchema = new mongoose.Schema(
     },
     submittedBy: {
       type: String,
-      default: 'Student Complainant'
+      default: 'Complainant'
+    },
+    complainantRole: {
+      type: String,
+      enum: ['student', 'teacher', 'admin'],
+      default: 'student'
+    },
+    employeeId: {
+      type: String,
+      trim: true
+    },
+    designation: {
+      type: String,
+      trim: true
     },
     contactEmail: {
       type: String,
@@ -85,10 +98,6 @@ const grievanceSchema = new mongoose.Schema(
     assignedDepartment: {
       type: String,
       default: 'General Administration'
-    },
-    slaHours: {
-      type: Number,
-      default: 48
     },
     timeline: {
       type: [timelineEventSchema],
@@ -109,6 +118,10 @@ const grievanceSchema = new mongoose.Schema(
       default: null
     },
     attachment: {
+      type: String,
+      default: null
+    },
+    attachmentUrl: {
       type: String,
       default: null
     },

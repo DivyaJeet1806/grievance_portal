@@ -28,6 +28,17 @@ const INITIAL_USERS = [
     rollNumber: "CS-2023-45",
     department: "Computer Science & Engineering",
     createdAt: "2026-09-01T00:00:00.000Z"
+  },
+  {
+    id: "USR-TEACHER-01",
+    name: "Prof. Rajesh Verma",
+    email: "teacher@campus.edu",
+    passwordHash: bcrypt.hashSync("teacher123", 10),
+    role: "teacher",
+    employeeId: "FAC-CSE-108",
+    designation: "Associate Professor",
+    department: "Computer Science & Engineering",
+    createdAt: "2026-09-01T00:00:00.000Z"
   }
 ];
 
@@ -59,11 +70,6 @@ export async function readUsers() {
   }
 }
 
-export async function writeUsers(data) {
-  await ensureUsersFile();
-  await fs.writeFile(USERS_FILE, JSON.stringify(data, null, 2), 'utf-8');
-}
-
 export async function findUserByEmail(email) {
   const cleanEmail = email ? email.trim().toLowerCase() : '';
   if (isDBConnected()) {
@@ -93,8 +99,9 @@ export async function findUserById(id) {
   return users.find(u => u.id === id);
 }
 
-export async function createUser({ name, email, password, role = 'student', rollNumber, department }) {
+export async function createUser({ name, email, password, role = 'student', rollNumber, employeeId, designation, department }) {
   const cleanEmail = email.trim().toLowerCase();
+  const cleanRole = role === 'admin' ? 'admin' : (role === 'teacher' ? 'teacher' : 'student');
 
   // If MongoDB is connected, save directly via Mongoose
   if (isDBConnected()) {
@@ -105,15 +112,17 @@ export async function createUser({ name, email, password, role = 'student', roll
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
-    const newId = `USR-${role.toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newId = `USR-${cleanRole.toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
     const newUser = await User.create({
       id: newId,
       name: name.trim(),
       email: cleanEmail,
       passwordHash,
-      role: role === 'admin' ? 'admin' : 'student',
+      role: cleanRole,
       rollNumber: rollNumber ? rollNumber.trim() : undefined,
+      employeeId: employeeId ? employeeId.trim() : undefined,
+      designation: designation ? designation.trim() : (cleanRole === 'teacher' ? 'Faculty Member' : undefined),
       department: department ? department.trim() : 'General'
     });
 
@@ -129,15 +138,17 @@ export async function createUser({ name, email, password, role = 'student', roll
 
   const salt = await bcrypt.genSalt(10);
   const passwordHash = await bcrypt.hash(password, salt);
-  const newId = `USR-${role.toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
+  const newId = `USR-${cleanRole.toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
   const newUser = {
     id: newId,
     name: name.trim(),
     email: cleanEmail,
     passwordHash,
-    role: role === 'admin' ? 'admin' : 'student',
+    role: cleanRole,
     rollNumber: rollNumber ? rollNumber.trim() : undefined,
+    employeeId: employeeId ? employeeId.trim() : undefined,
+    designation: designation ? designation.trim() : (cleanRole === 'teacher' ? 'Faculty Member' : undefined),
     department: department ? department.trim() : 'General',
     createdAt: new Date().toISOString()
   };

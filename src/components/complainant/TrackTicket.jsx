@@ -5,21 +5,20 @@ import {
   Search, 
   Clock, 
   MapPin, 
-  User, 
   Paperclip, 
   CheckCircle, 
   AlertCircle, 
   Calendar, 
   Star, 
   Send,
-  Building,
   Building2,
   ShieldCheck,
   Tag,
-  ArrowRight,
-  Zap
+  Zap,
+  Maximize2
 } from 'lucide-react';
 import { getDepartmentForCategory } from '../../data/departmentMapping';
+import { ImageLightboxModal } from '../common/ImageLightboxModal';
 
 export const TrackTicket = () => {
   const { 
@@ -35,6 +34,14 @@ export const TrackTicket = () => {
   // Rating state for resolved tickets
   const [ratingVal, setRatingVal] = useState(5);
   const [feedbackText, setFeedbackText] = useState('');
+  const [copiedId, setCopiedId] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+  const handleCopyId = (id) => {
+    navigator.clipboard.writeText(id);
+    setCopiedId(true);
+    setTimeout(() => setCopiedId(false), 2000);
+  };
 
   // Sync when trackedTicketId changes from another tab
   useEffect(() => {
@@ -65,12 +72,6 @@ export const TrackTicket = () => {
     }
   };
 
-  const handleSelectRecent = (id) => {
-    setSearchInput(id);
-    const found = grievances.find(g => g.id === id);
-    setSelectedTicket(found || null);
-    setTrackedTicketId(id);
-  };
 
   const handleRatingSubmit = (e) => {
     e.preventDefault();
@@ -116,10 +117,10 @@ export const TrackTicket = () => {
     <div>
       {/* Search Header Card */}
       <div className="glass-panel track-header-card">
-        <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>Track Your Grievance Status</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginTop: '0.35rem' }}>
-          Enter your unique Ticket ID below
-        </p>
+        <h2 style={{ fontSize: '1.65rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: 0 }}>
+          Track Grievance
+        </h2>
+      
 
         <form onSubmit={handleSearch} className="track-search-box">
           <input
@@ -131,26 +132,11 @@ export const TrackTicket = () => {
             onChange={(e) => setSearchInput(e.target.value)}
           />
           <button id="search-ticket-btn" type="submit" className="btn btn-primary">
-            <Search size={18} />
-            <span>Search</span>
+            <Search size={16} />
+            <span>Search Case</span>
           </button>
         </form>
 
-        {/* Quick Recent Chips for testing */}
-        {grievances.length > 0 && (
-          <div className="recent-searches">
-            <span>Recent Tickets:</span>
-            {grievances.slice(0, 4).map(g => (
-              <button
-                key={g.id}
-                className="recent-chip"
-                onClick={() => handleSelectRecent(g.id)}
-              >
-                {g.id} ({g.status})
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Ticket Details View */}
@@ -179,18 +165,41 @@ export const TrackTicket = () => {
             </div>
 
             {/* Header info */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              flexWrap: 'wrap',
+              gap: '1rem',
+              marginBottom: '1.25rem',
+              paddingBottom: '1.25rem',
+              borderBottom: '1px solid var(--border-subtle)'
+            }}>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem' }}>
-                  <span className="ticket-mono" style={{ fontSize: '1.25rem' }}>{selectedTicket.id}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.45rem', flexWrap: 'wrap' }}>
+                  <span className="ticket-mono" style={{ fontSize: '1.15rem' }}>{selectedTicket.id}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyId(selectedTicket.id)}
+                    style={{
+                      background: 'var(--surface-input)',
+                      border: '1px solid var(--border-subtle)',
+                      borderRadius: 'var(--radius-xs)',
+                      padding: '0.2rem 0.5rem',
+                      fontSize: '0.72rem',
+                      color: 'var(--text-secondary)',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {copiedId ? '✓ Copied' : 'Copy ID'}
+                  </button>
                   <span className={`badge ${getStatusBadgeClass(selectedTicket.status)}`}>
                     {selectedTicket.status}
                   </span>
-                  <span className={`urgency-${selectedTicket.urgency.toLowerCase()}`} style={{ fontSize: '0.8rem', fontWeight: 700 }}>
-                    • {selectedTicket.urgency} Urgency
-                  </span>
                 </div>
-                <h3 style={{ fontSize: '1.35rem', fontWeight: 800 }}>{selectedTicket.title}</h3>
+                <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.02em' }}>
+                  {selectedTicket.title}
+                </h3>
               </div>
             </div>
 
@@ -389,13 +398,67 @@ export const TrackTicket = () => {
                   </span>
                 </div>
 
-                {selectedTicket.attachment && (
+                {(selectedTicket.attachmentUrl || selectedTicket.attachment) && (
                   <div className="meta-field">
                     <label>Attached Document / Evidence</label>
-                    <span className="file-preview-pill" style={{ display: 'inline-flex', marginTop: '0.25rem' }}>
-                      <Paperclip size={13} />
-                      {selectedTicket.attachment}
-                    </span>
+                    {selectedTicket.attachmentUrl ? (
+                      <div style={{
+                        marginTop: '0.45rem',
+                        background: 'var(--surface-input)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: 'var(--radius-sm)',
+                        padding: '0.6rem 0.75rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '0.75rem'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+                          <div
+                            style={{
+                              width: '36px',
+                              height: '36px',
+                              borderRadius: '6px',
+                              overflow: 'hidden',
+                              border: '1px solid rgba(56, 189, 248, 0.4)',
+                              cursor: 'pointer',
+                              flexShrink: 0
+                            }}
+                            onClick={() => setIsLightboxOpen(true)}
+                            title="Click to view full photo"
+                          >
+                            <img
+                              src={selectedTicket.attachmentUrl}
+                              alt="Photo Evidence"
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                          </div>
+                          <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {selectedTicket.attachment || 'Photo Evidence'}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => setIsLightboxOpen(true)}
+                          style={{
+                            fontSize: '0.72rem',
+                            padding: '0.25rem 0.55rem',
+                            color: '#38bdf8',
+                            borderColor: 'rgba(56, 189, 248, 0.35)',
+                            background: 'rgba(56, 189, 248, 0.08)'
+                          }}
+                        >
+                          <Maximize2 size={11} />
+                          <span>View</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="file-preview-pill" style={{ display: 'inline-flex', marginTop: '0.25rem' }}>
+                        <Paperclip size={13} />
+                        {selectedTicket.attachment}
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
@@ -408,7 +471,7 @@ export const TrackTicket = () => {
                 Need Urgent Escalation?
               </div>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
-                If this grievance has breached the SLA or involves physical safety, contact the Proctorial Cell directly at <strong>ext: 2049</strong> or email <strong>proctor@campus.edu</strong>.
+                If this grievance requires immediate attention or involves physical safety, contact the Proctorial Cell directly at <strong>ext: 2049</strong> or email <strong>proctor@campus.edu</strong>.
               </p>
             </div>
           </div>
@@ -427,6 +490,16 @@ export const TrackTicket = () => {
           </p>
         </div>
       )}
+
+      {/* Lightbox for Complainant Photo Inspection */}
+      <ImageLightboxModal
+        isOpen={isLightboxOpen}
+        onClose={() => setIsLightboxOpen(false)}
+        imageUrl={selectedTicket?.attachmentUrl}
+        fileName={selectedTicket?.attachment}
+        ticketId={selectedTicket?.id}
+        title="Grievance Evidence Photo"
+      />
     </div>
   );
 };

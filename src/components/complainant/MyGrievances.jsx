@@ -6,23 +6,21 @@ import {
   Calendar, 
   ArrowRight, 
   PlusCircle, 
-  Filter, 
   Inbox, 
-  Clock,
-  Building2
+  Building2, 
+  User, 
+  Camera 
 } from 'lucide-react';
 import { getDepartmentForCategory } from '../../data/departmentMapping';
 
 export const MyGrievances = () => {
   const { grievances, setTrackedTicketId, setActiveTab } = useGrievance();
 
-  // Default to active so resolved problems are removed from the main active page
-  const [activeFilter, setActiveFilter] = useState('active'); // active (default), all, critical
+  const [activeFilter, setActiveFilter] = useState('active'); // active (default), all
   const [searchQuery, setSearchQuery] = useState('');
 
   const activeTickets = grievances.filter(g => g.status !== 'Resolved' && g.status !== 'Rejected');
   const resolvedTickets = grievances.filter(g => g.status === 'Resolved');
-  const criticalTickets = grievances.filter(g => g.urgency === 'Critical' && g.status !== 'Resolved');
 
   const filterTickets = () => {
     return grievances.filter(item => {
@@ -30,8 +28,6 @@ export const MyGrievances = () => {
       if (activeFilter === 'active') {
         // Remove resolved from main page
         if (item.status === 'Resolved' || item.status === 'Rejected') return false;
-      } else if (activeFilter === 'critical') {
-        if (item.urgency !== 'Critical' || item.status === 'Resolved') return false;
       }
 
       // Search filter
@@ -92,44 +88,7 @@ export const MyGrievances = () => {
         </div>
       </div>
 
-      {/* Resolved Archive Notice Banner */}
-      {resolvedTickets.length > 0 && (
-        <div style={{
-          background: 'rgba(16, 185, 129, 0.08)',
-          border: '1px solid rgba(16, 185, 129, 0.25)',
-          borderRadius: 'var(--radius-md)',
-          padding: '0.75rem 1.25rem',
-          marginBottom: '1.25rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '0.75rem'
-        }}>
-          <div style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981' }}></span>
-            <span><strong>{resolvedTickets.length} problem{resolvedTickets.length !== 1 ? 's have' : ' has'} been resolved</strong> and automatically archived into the Resolved Problems list.</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setActiveTab('resolved')}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#10b981',
-              fontWeight: 700,
-              fontSize: '0.82rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem'
-            }}
-          >
-            <span>Open Resolved Problems List</span>
-            <ArrowRight size={12} />
-          </button>
-        </div>
-      )}
+
 
       {/* Filter and Search controls */}
       <div className="glass-panel" style={{ padding: '1rem 1.25rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
@@ -139,12 +98,6 @@ export const MyGrievances = () => {
             onClick={() => setActiveFilter('active')}
           >
             Active In-Flight ({activeTickets.length})
-          </button>
-          <button 
-            className={`filter-pill ${activeFilter === 'critical' ? 'active' : ''}`}
-            onClick={() => setActiveFilter('critical')}
-          >
-            Critical Urgency ({criticalTickets.length})
           </button>
           <button 
             className="filter-pill"
@@ -183,7 +136,25 @@ export const MyGrievances = () => {
             >
               <div>
                 <div className="ticket-card-header">
-                  <span className="ticket-mono">{item.id}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    <span className="ticket-mono">{item.id}</span>
+                    {(item.attachmentUrl || item.attachment) && (
+                      <span style={{
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        padding: '0.12rem 0.45rem',
+                        borderRadius: 'var(--radius-full)',
+                        background: 'rgba(56, 189, 248, 0.12)',
+                        border: '1px solid rgba(56, 189, 248, 0.35)',
+                        color: '#38bdf8',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.2rem'
+                      }}>
+                        <Camera size={10} /> Photo
+                      </span>
+                    )}
+                  </div>
                   {getStatusBadge(item.status)}
                 </div>
 
@@ -198,7 +169,8 @@ export const MyGrievances = () => {
                     <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{item.department || getDepartmentForCategory(item.category).department}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--color-blue)', fontSize: '0.75rem' }}>
-                    <span>👤 {item.assignedTo}</span>
+                    <User size={12} />
+                    <span>{item.assignedTo}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                     <MapPin size={12} style={{ color: 'var(--primary-500)' }} />

@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useGrievance } from '../../context/GrievanceContext';
 import { Modal } from './Modal';
-import { 
-  Lock, 
-  AlertCircle, 
+import {
+  Lock,
+  AlertCircle,
   KeyRound
 } from 'lucide-react';
 
 export const AuthModal = () => {
-  const { 
-    isAuthModalOpen, 
-    setIsAuthModalOpen, 
+  const {
+    isAuthModalOpen,
+    setIsAuthModalOpen,
     login
   } = useAuth();
 
@@ -57,11 +57,11 @@ export const AuthModal = () => {
       <div>
         {/* Error notice if any */}
         {errorMsg && (
-          <div style={{ 
-            background: 'var(--color-rose-bg)', 
-            border: '1px solid rgba(244, 63, 94, 0.3)', 
-            borderRadius: 'var(--radius-md)', 
-            padding: '0.75rem 1rem', 
+          <div style={{
+            background: 'var(--color-rose-bg)',
+            border: '1px solid rgba(244, 63, 94, 0.3)',
+            borderRadius: 'var(--radius-md)',
+            padding: '0.75rem 1rem',
             marginBottom: '1.25rem',
             color: 'var(--color-rose)',
             fontSize: '0.86rem',

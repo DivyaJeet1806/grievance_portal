@@ -1,1 +1,237 @@
-[]
+[
+  {
+    "id": "GRV-2026-3221",
+    "title": "gdhjb",
+    "category": "Campus Infrastructure & Lab",
+    "department": "Estate & Works Directorate",
+    "description": "gdfhgj",
+    "location": "vbk",
+    "urgency": "Medium",
+    "status": "Resolved",
+    "submittedBy": "Rahul Sharma",
+    "complainantRole": "student",
+    "contactEmail": "student@campus.edu",
+    "isAnonymous": false,
+    "assignedTo": "Er. Vikram Mehta (Executive Engineer, Works)",
+    "assignedDepartment": "Estate & Works Directorate",
+    "timeline": [
+      {
+        "stage": "Submitted",
+        "timestamp": "2026-10-16T06:36:51.590Z",
+        "message": "Grievance registered and automatically assigned to Estate & Works Directorate (Er. Vikram Mehta (Executive Engineer, Works)) under institutional dispatch protocol.",
+        "actor": "Automated Routing Engine"
+      },
+      {
+        "stage": "Resolved",
+        "timestamp": "2026-10-16T06:37:37.063Z",
+        "message": "Problem inspected and successfully resolved on ground.",
+        "actor": "Dr. Anita Rao (Dean of Student Welfare)"
+      }
+    ],
+    "resolutionNotes": "Problem inspected and successfully resolved on ground.",
+    "rating": null,
+    "feedback": null,
+    "attachment": null,
+    "attachmentUrl": null,
+    "updatedAt": "2026-10-16T06:37:37.063Z"
+  },
+  {
+    "id": "GRV-2026-5681",
+    "title": "Broken ceiling fan in Lab 101",
+    "category": "Campus Infrastructure & Lab",
+    "department": "Estate & Works Directorate",
+    "description": "Ceiling fan is wobbling and sparking during lab lectures.",
+    "location": "Lab 101",
+    "urgency": "Medium",
+    "status": "Resolved",
+    "submittedBy": "Rahul Sharma",
+    "complainantRole": "student",
+    "contactEmail": "student@campus.edu",
+    "isAnonymous": false,
+    "assignedTo": "Er. Vikram Mehta (Executive Engineer, Works)",
+    "assignedDepartment": "Estate & Works Directorate",
+    "timeline": [
+      {
+        "stage": "Submitted",
+        "timestamp": "2026-10-15T20:45:38.358Z",
+        "message": "Grievance registered and automatically assigned to Estate & Works Directorate (Er. Vikram Mehta (Executive Engineer, Works)) under institutional dispatch protocol.",
+        "actor": "Automated Routing Engine"
+      },
+      {
+        "stage": "Resolved",
+        "timestamp": "2026-10-16T06:03:34.789Z",
+        "message": "Problem inspected and successfully resolved on ground.",
+        "actor": "Dr. Anita Rao (Dean of Student Welfare)"
+      },
+      {
+        "stage": "Resolved",
+        "timestamp": "2026-10-16T06:28:56.926Z",
+        "message": "Complainant Confirmed Solved: Verified by complainant. Issue solved satisfactorily.",
+        "actor": "Rahul Sharma"
+      }
+    ],
+    "resolutionNotes": "Problem inspected and successfully resolved on ground.",
+    "rating": 5,
+    "feedback": "Verified by complainant. Issue solved satisfactorily.",
+    "attachment": "broken_fan.jpg",
+    "attachmentUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    "updatedAt": "2026-10-16T06:28:56.926Z",
+    "complainantConfirmed": true,
+    "complainantConfirmedAt": "2026-10-16T06:28:56.926Z",
+    "complainantConfirmedBy": "Rahul Sharma"
+  },
+  {
+    "id": "GRV-2026-5104",
+    "title": "ghjkl;",
+    "category": "Academic & Curriculum",
+    "department": "Academic Affairs & Examination Branch",
+    "description": "srtdghojk",
+    "location": "teyfghoip",
+    "urgency": "Critical",
+    "status": "Resolved",
+    "submittedBy": "Rahul Sharma",
+    "complainantRole": "student",
+    "contactEmail": "student@campus.edu",
+    "isAnonymous": false,
+    "assignedTo": "Prof. R. Narayanan (Dean of Academic Affairs)",
+    "assignedDepartment": "Academic Affairs & Examination Branch",
+    "timeline": [
+      {
+        "stage": "Submitted",
+        "timestamp": "2026-10-13T08:39:29.664Z",
+        "message": "Grievance registered and automatically assigned to Academic Affairs & Examination Branch (Prof. R. Narayanan (Dean of Academic Affairs)) under institutional dispatch protocol.",
+        "actor": "Automated Routing Engine"
+      },
+      {
+        "stage": "Resolved",
+        "timestamp": "2026-10-13T08:40:24.414Z",
+        "message": "ho gya",
+        "actor": "Dr. Anita Rao (Dean of Student Welfare)"
+      },
+      {
+        "stage": "Resolved",
+        "timestamp": "2026-10-13T08:41:00.059Z",
+        "message": "Complainant Confirmed Solved: bohot bdhiya ji",
+        "actor": "Rahul Sharma"
+      },
+      {
+        "stage": "Resolved",
+        "timestamp": "2026-10-15T17:48:50.090Z",
+        "message": "Complainant Confirmed Solved: Verified by complainant. Issue solved satisfactorily.",
+        "actor": "Rahul Sharma"
+      }
+    ],
+    "resolutionNotes": "ho gya",
+    "rating": 5,
+    "feedback": "Verified by complainant. Issue solved satisfactorily.",
+    "attachment": null,
+    "updatedAt": "2026-10-15T17:48:50.090Z",
+    "complainantConfirmed": true,
+    "complainantConfirmedAt": "2026-10-15T17:48:50.090Z",
+    "complainantConfirmedBy": "Rahul Sharma"
+  },
+  {
+    "id": "GRV-2026-4219",
+    "title": "Smart Board display flickering & audio failure in Lecture Theatre LT-204",
+    "category": "Campus Infrastructure & Lab",
+    "department": "Estate & Works Directorate",
+    "description": "During regular 3rd-year Operating Systems lectures, the digital podium HDMI output repeatedly loses sync and audio echoes loudly, severely disrupting classroom delivery. Needs urgent technician attention.",
+    "location": "Academic Block B, Lecture Theatre LT-204",
+    "urgency": "High",
+    "status": "Resolved",
+    "submittedBy": "Prof. Rajesh Verma",
+    "complainantRole": "teacher",
+    "employeeId": "FAC-CSE-108",
+    "designation": "Associate Professor",
+    "contactEmail": "teacher@campus.edu",
+    "isAnonymous": false,
+    "assignedTo": "Er. Vikram Mehta (Executive Engineer, Works)",
+    "assignedDepartment": "Estate & Works Directorate",
+    "timeline": [
+      {
+        "stage": "Submitted",
+        "timestamp": "2026-10-07T08:15:00.000Z",
+        "message": "Faculty grievance registered and routed to Estate & Works Directorate.",
+        "actor": "Automated Routing Engine"
+      },
+      {
+        "stage": "In Progress",
+        "timestamp": "2026-10-07T08:45:00.000Z",
+        "message": "Audiovisual maintenance engineer dispatched for inspection of podium HDMI transmitter.",
+        "actor": "Er. Vikram Mehta (Executive Engineer, Works)"
+      },
+      {
+        "stage": "Resolved",
+        "timestamp": "2026-10-15T19:09:19.457Z",
+        "message": "Complainant Confirmed Solved: Verified by complainant. Issue solved satisfactorily.",
+        "actor": "Prof. Rajesh Verma"
+      },
+      {
+        "stage": "Resolved",
+        "timestamp": "2026-10-15T19:11:36.666Z",
+        "message": "Problem inspected and successfully resolved on ground.",
+        "actor": "Dr. Anita Rao (Dean of Student Welfare)"
+      }
+    ],
+    "resolutionNotes": "Problem inspected and successfully resolved on ground.",
+    "rating": 5,
+    "feedback": "Verified by complainant. Issue solved satisfactorily.",
+    "attachment": null,
+    "createdAt": "2026-10-07T08:15:00.000Z",
+    "updatedAt": "2026-10-15T19:11:36.666Z",
+    "complainantConfirmed": true,
+    "complainantConfirmedAt": "2026-10-15T19:09:19.457Z",
+    "complainantConfirmedBy": "Prof. Rajesh Verma"
+  },
+  {
+    "id": "GRV-2026-3015",
+    "title": "Broken bench and flickering LED tubes in Physics Lab 2",
+    "category": "Campus Infrastructure & Lab",
+    "department": "Estate & Works Directorate",
+    "description": "Lab benches have damaged support brackets and tube lights keep flickering during practical sessions.",
+    "location": "Main Campus, Lab Block 2",
+    "urgency": "Medium",
+    "status": "Resolved",
+    "submittedBy": "Rahul Sharma",
+    "complainantRole": "student",
+    "rollNumber": "CS-2023-45",
+    "contactEmail": "student@campus.edu",
+    "isAnonymous": false,
+    "assignedTo": "Er. Vikram Mehta (Executive Engineer, Works)",
+    "assignedDepartment": "Estate & Works Directorate",
+    "timeline": [
+      {
+        "stage": "Submitted",
+        "timestamp": "2026-10-07T09:38:09.863Z",
+        "message": "Grievance registered and automatically assigned to Estate & Works Directorate under institutional dispatch protocol.",
+        "actor": "Automated Routing Engine"
+      },
+      {
+        "stage": "In Progress",
+        "timestamp": "2026-10-07T09:38:31.441Z",
+        "message": "Investigation and active repair work initiated by department operator.",
+        "actor": "Dr. Anita Rao (Dean of Student Welfare)"
+      },
+      {
+        "stage": "Resolved",
+        "timestamp": "2026-10-07T09:39:03.684Z",
+        "message": "Problem inspected and successfully resolved on ground.",
+        "actor": "Dr. Anita Rao (Dean of Student Welfare)"
+      },
+      {
+        "stage": "Resolved",
+        "timestamp": "2026-10-15T18:06:36.697Z",
+        "message": "Complainant Confirmed Solved: gkfnems",
+        "actor": "Rahul Sharma"
+      }
+    ],
+    "resolutionNotes": "Problem inspected and successfully resolved on ground.",
+    "rating": 5,
+    "feedback": "gkfnems",
+    "attachment": null,
+    "updatedAt": "2026-10-15T18:06:36.697Z",
+    "complainantConfirmed": true,
+    "complainantConfirmedAt": "2026-10-15T18:06:36.697Z",
+    "complainantConfirmedBy": "Rahul Sharma"
+  }
+]

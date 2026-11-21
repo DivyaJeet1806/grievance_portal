@@ -1,14 +1,38 @@
+import dns from 'dns';
 import mongoose from 'mongoose';
 import { seedInitialDataIfEmpty } from '../utils/seedData.js';
 
-let isConnected = false;
+// Configure reliable DNS servers to ensure MongoDB Atlas SRV (_mongodb._tcp) resolves cleanly on Windows
+try {
+  const defaultServers = ['8.8.8.8', '1.1.1.1'];
+  if (process.platform === 'win32') {
+    import('child_process').then(({ execSync }) => {
+      try {
+        const out = execSync('powershell -NoProfile -Command "(Get-DnsClientServerAddress -AddressFamily IPv4 | Where-Object { $_.ServerAddresses.Count -gt 0 }).ServerAddresses"', { encoding: 'utf-8', timeout: 2000 });
+        const sysDns = out.split(/\r?\n/).map(s => s.trim()).filter(s => s && !s.startsWith('127.'));
+        if (sysDns.length > 0) {
+          dns.setServers([...new Set([...sysDns, ...defaultServers])]);
+        } else {
+          dns.setServers(defaultServers);
+        }
+      } catch {
+        dns.setServers(defaultServers);
+      }
+    }).catch(() => {
+      dns.setServers(defaultServers);
+    });
+  } else {
+    dns.setServers(defaultServers);
+  }
+} catch {
+  // Ignore if unsupported in environment
+}
 
 export async function connectDB() {
   const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/grievancehub';
 
   // Handle connection events
   mongoose.connection.on('connected', async () => {
-    isConnected = true;
     console.log('📦 [MongoDB] Successfully connected to Database');
     try {
       await seedInitialDataIfEmpty();
@@ -18,12 +42,10 @@ export async function connectDB() {
   });
 
   mongoose.connection.on('error', (err) => {
-    isConnected = false;
     console.error('❌ [MongoDB] Connection Error:', err.message);
   });
 
   mongoose.connection.on('disconnected', () => {
-    isConnected = false;
     console.warn('⚠️ [MongoDB] Disconnected from database');
   });
 
@@ -32,10 +54,8 @@ export async function connectDB() {
     await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds instead of hanging
     });
-    isConnected = true;
     return true;
   } catch (error) {
-    isConnected = false;
     console.error('===============================================================');
     console.error('⚠️ [MongoDB] COULD NOT CONNECT TO MONGODB');
     console.error(`Reason: ${error.message}`);

@@ -16,10 +16,8 @@ import {
   Clock,
   Activity,
   CheckCircle2,
-  AlertTriangle,
   Download,
-  TrendingUp,
-  ShieldAlert
+  TrendingUp
 } from 'lucide-react';
 import { getDepartmentForCategory } from '../../data/departmentMapping';
 
@@ -135,13 +133,12 @@ export const Analytics = () => {
 
   // Export to CSV Function
   const exportCSV = () => {
-    const headers = ['Ticket ID', 'Title', 'Category', 'Assigned Department', 'Urgency', 'Status', 'Complainant', 'Assigned Officer', 'Created At', 'Rating'];
+    const headers = ['Ticket ID', 'Title', 'Category', 'Assigned Department', 'Status', 'Complainant', 'Assigned Officer', 'Created At', 'Rating'];
     const rows = grievances.map(g => [
       g.id,
       `"${g.title.replace(/"/g, '""')}"`,
       `"${g.category}"`,
       `"${g.department || getDepartmentForCategory(g.category).department}"`,
-      g.urgency,
       g.status,
       `"${g.submittedBy}"`,
       `"${g.assignedTo}"`,
@@ -180,9 +177,9 @@ export const Analytics = () => {
       {/* Metrics Cards Grid */}
       <div className="metrics-grid">
         {/* Total Grievances */}
-        <div className="glass-panel metric-card" style={{ '--accent-gradient': 'linear-gradient(90deg, #6366f1, #8b5cf6)' }}>
-          <div className="metric-icon-box" style={{ background: 'rgba(99, 102, 241, 0.15)', color: 'var(--primary-500)' }}>
-            <Inbox size={26} />
+        <div className="glass-panel metric-card" style={{ '--accent-gradient': 'var(--primary-600)' }}>
+          <div className="metric-icon-box" style={{ background: 'rgba(37, 99, 235, 0.12)', color: 'var(--primary-600)' }}>
+            <Inbox size={24} />
           </div>
           <div className="metric-details">
             <span className="metric-title">Total Logged</span>
@@ -192,9 +189,9 @@ export const Analytics = () => {
         </div>
 
         {/* Pending Triage */}
-        <div className="glass-panel metric-card" style={{ '--accent-gradient': 'linear-gradient(90deg, #3b82f6, #06b6d4)' }}>
+        <div className="glass-panel metric-card" style={{ '--accent-gradient': 'var(--color-blue)' }}>
           <div className="metric-icon-box" style={{ background: 'var(--color-blue-bg)', color: 'var(--color-blue)' }}>
-            <Clock size={26} />
+            <Clock size={24} />
           </div>
           <div className="metric-details">
             <span className="metric-title">Pending Screening</span>
@@ -204,9 +201,9 @@ export const Analytics = () => {
         </div>
 
         {/* In Progress */}
-        <div className="glass-panel metric-card" style={{ '--accent-gradient': 'linear-gradient(90deg, #f59e0b, #f97316)' }}>
+        <div className="glass-panel metric-card" style={{ '--accent-gradient': 'var(--color-amber)' }}>
           <div className="metric-icon-box" style={{ background: 'var(--color-amber-bg)', color: 'var(--color-amber)' }}>
-            <Activity size={26} />
+            <Activity size={24} />
           </div>
           <div className="metric-details">
             <span className="metric-title">In-Flight Actions</span>
@@ -216,26 +213,14 @@ export const Analytics = () => {
         </div>
 
         {/* Resolution Rate */}
-        <div className="glass-panel metric-card" style={{ '--accent-gradient': 'linear-gradient(90deg, #10b981, #14b8a6)' }}>
+        <div className="glass-panel metric-card" style={{ '--accent-gradient': 'var(--color-emerald)' }}>
           <div className="metric-icon-box" style={{ background: 'var(--color-emerald-bg)', color: 'var(--color-emerald)' }}>
-            <CheckCircle2 size={26} />
+            <CheckCircle2 size={24} />
           </div>
           <div className="metric-details">
             <span className="metric-title">Resolution Rate</span>
             <span className="metric-value">{metrics.resolutionRate}%</span>
             <span className="metric-sub">{metrics.resolvedCount} solved tickets</span>
-          </div>
-        </div>
-
-        {/* Critical Alerts */}
-        <div className="glass-panel metric-card" style={{ '--accent-gradient': 'linear-gradient(90deg, #f43f5e, #e11d48)' }}>
-          <div className="metric-icon-box" style={{ background: 'var(--color-rose-bg)', color: 'var(--color-rose)' }}>
-            <AlertTriangle size={26} />
-          </div>
-          <div className="metric-details">
-            <span className="metric-title">Critical Urgency</span>
-            <span className="metric-value">{metrics.criticalCount}</span>
-            <span className="metric-sub">24h SLA watchlist</span>
           </div>
         </div>
       </div>

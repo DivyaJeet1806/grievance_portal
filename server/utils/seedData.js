@@ -19,6 +19,16 @@ export const INITIAL_USERS = [
     role: "student",
     rollNumber: "CS-2023-45",
     department: "Computer Science & Engineering"
+  },
+  {
+    id: "USR-TEACHER-01",
+    name: "Prof. Rajesh Verma",
+    email: "teacher@campus.edu",
+    passwordHash: bcrypt.hashSync("teacher123", 10),
+    role: "teacher",
+    employeeId: "FAC-CSE-108",
+    designation: "Associate Professor",
+    department: "Computer Science & Engineering"
   }
 ];
 

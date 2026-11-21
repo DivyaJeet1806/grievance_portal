@@ -1,0 +1,91 @@
+/* ==========================================================================
+   PORTAL TRANSITION SCREEN (POST-LOGIN LOADER)
+   ========================================================================== */
+
+.portal-transition-screen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999;
+  background-color: #0d0e12;
+  color: #8fa0ac;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Main Centered Container */
+.portal-transition-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  z-index: 10;
+  padding: 0 1.5rem;
+  max-width: 20rem;
+  width: 100%;
+  transition: opacity 0.5s ease-out;
+}
+
+/* Subtle fade out transition on load complete */
+.portal-transition-content.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 
+   Subtle Vertical Sliding/Stretching Bars 
+   Reference colors: #215764, #12343c
+*/
+.portal-transition-screen .bar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+  margin-bottom: 1.5rem;
+}
+
+.portal-transition-screen .bar {
+  width: 4px;
+  height: 8px;
+  background-color: #215764;
+  border-radius: 2px;
+  animation: slidePulse 1.2s ease-in-out infinite;
+}
+
+.portal-transition-screen .bar:nth-child(1) { animation-delay: 0.0s; }
+.portal-transition-screen .bar:nth-child(2) { animation-delay: 0.2s; }
+.portal-transition-screen .bar:nth-child(3) { animation-delay: 0.4s; }
+.portal-transition-screen .bar:nth-child(4) { animation-delay: 0.6s; }
+
+@keyframes slidePulse {
+  0%, 100% {
+    height: 8px;
+    background-color: #12343c;
+    opacity: 0.5;
+  }
+  50% {
+    height: 24px;
+    background-color: #215764;
+    opacity: 0.9;
+  }
+}
+
+/* Low-Contrast Soft Text */
+.portal-transition-screen .status-text {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: 0.025em;
+  color: rgba(148, 163, 184, 0.8);
+  font-weight: 400;
+  margin: 0;
+}
+
+

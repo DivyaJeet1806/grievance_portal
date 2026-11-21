@@ -6,7 +6,7 @@ import { JWT_SECRET } from '../middleware/authMiddleware.js';
 // POST /api/auth/register
 export async function register(req, res) {
   try {
-    const { name, email, password, role, rollNumber, department } = req.body;
+    const { name, email, password, role, rollNumber, employeeId, designation, department } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -28,6 +28,8 @@ export async function register(req, res) {
       password,
       role: role || 'student',
       rollNumber,
+      employeeId,
+      designation,
       department
     });
 

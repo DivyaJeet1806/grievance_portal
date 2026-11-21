@@ -1,6 +1,6 @@
 // Backend Institutional Department Directory & Auto-Assignment Engine
 
-export const DEPARTMENT_DIRECTORY = {
+const DEPARTMENT_DIRECTORY = {
   "Campus Infrastructure & Lab": {
     department: "Estate & Works Directorate",
     officer: "Er. Vikram Mehta (Executive Engineer, Works)",
@@ -56,6 +56,13 @@ export const DEPARTMENT_DIRECTORY = {
     email: "sanitation.food@campus.edu",
     scope: "Food hygiene, cafeteria pricing, RO drinking water inspection & pest control",
     keywords: ["food", "canteen", "cafeteria", "hygiene", "ro water", "mess food", "sanitation", "cleanliness", "dirty", "taste", "insect", "purifier"]
+  },
+  "Faculty & Staff Affairs": {
+    department: "Faculty Welfare & Staff Administration Cell",
+    officer: "Prof. Amitabh Sen (Dean of Faculty Affairs)",
+    email: "faculty.affairs@campus.edu",
+    scope: "Faculty workload, teaching logistics, staff workstation, duty leave & research grants",
+    keywords: ["faculty", "teacher", "professor", "teaching", "podium", "workstation", "cabin", "salary", "leave", "research", "grant", "allowance", "conference", "hod"]
   },
   "Other General Matters": {
     department: "Central Administrative Redressal Secretariat",

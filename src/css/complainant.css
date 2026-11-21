@@ -22,196 +22,14 @@
   margin-bottom: 1.25rem;
 }
 
-.form-grid-3col {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 1.25rem;
-}
-
-@media (max-width: 820px) {
-  .form-grid-3col {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
 @media (max-width: 580px) {
-  .form-grid-2col,
-  .form-grid-3col {
+  .form-grid-2col {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
 }
 
-.guidelines-card {
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
 
-.guide-step {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-}
-
-.guide-number {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-full);
-  background: rgba(99, 102, 241, 0.15);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: var(--primary-500);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.85rem;
-  flex-shrink: 0;
-}
-
-.guide-info h4 {
-  font-size: 0.95rem;
-  margin-bottom: 0.2rem;
-  color: var(--text-primary);
-}
-
-.guide-info p {
-  font-size: 0.84rem;
-  color: var(--text-muted);
-  line-height: 1.45;
-}
-
-/* Radio Cards for Urgency */
-.urgency-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-}
-
-.urgency-option {
-  border: 1px solid var(--border-subtle);
-  background: var(--surface-input);
-  border-radius: var(--radius-md);
-  padding: 0.75rem 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.urgency-option:hover {
-  border-color: var(--border-strong);
-  background: var(--surface-card);
-}
-
-.urgency-option.selected {
-  border-color: var(--primary-500);
-  background: rgba(99, 102, 241, 0.1);
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
-}
-
-.urgency-radio-indicator {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 2px solid var(--border-strong);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.urgency-option.selected .urgency-radio-indicator {
-  border-color: var(--primary-500);
-}
-
-.urgency-option.selected .urgency-radio-indicator::after {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--primary-500);
-}
-
-/* Anonymous Switch */
-.switch-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
-  background: var(--surface-input);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
-  margin-bottom: 1.25rem;
-}
-
-.switch-label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.switch-title {
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.switch-subtitle {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.toggle-checkbox {
-  position: relative;
-  display: inline-block;
-  width: 48px;
-  height: 26px;
-  cursor: pointer;
-}
-
-.toggle-checkbox input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.toggle-slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: var(--border-strong);
-  transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  border-radius: 34px;
-}
-
-.toggle-slider:before {
-  position: absolute;
-  content: "";
-  height: 20px;
-  width: 20px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  border-radius: 50%;
-}
-
-.toggle-checkbox input:checked + .toggle-slider {
-  background: var(--primary-gradient);
-}
-
-.toggle-checkbox input:checked + .toggle-slider:before {
-  transform: translateX(22px);
-}
 
 /* File Attachment Simulation */
 .file-upload-box {
@@ -225,26 +43,18 @@
 }
 
 .file-upload-box:hover {
-  border-color: var(--primary-500);
-  background: rgba(99, 102, 241, 0.05);
+  border-color: var(--primary-600);
+  background: rgba(37, 99, 235, 0.04);
 }
 
-.file-upload-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-}
 
 .file-preview-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(99, 102, 241, 0.15);
-  color: var(--primary-500);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--primary-600);
+  border: 1px solid rgba(37, 99, 235, 0.25);
   padding: 0.4rem 0.8rem;
   border-radius: var(--radius-full);
   font-size: 0.82rem;
@@ -275,33 +85,7 @@
   text-transform: uppercase;
 }
 
-.recent-searches {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 1.25rem;
-  flex-wrap: wrap;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
 
-.recent-chip {
-  background: var(--surface-card);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  border-radius: var(--radius-full);
-  padding: 0.25rem 0.75rem;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.recent-chip:hover {
-  border-color: var(--primary-500);
-  color: var(--text-primary);
-}
 
 .ticket-detail-view {
   display: grid;
@@ -319,16 +103,6 @@
   padding: 2rem;
 }
 
-.ticket-meta-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.25rem;
-  margin: 1.5rem 0;
-  padding: 1.25rem;
-  background: var(--surface-input);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
-}
 
 .meta-field label {
   font-size: 0.74rem;
@@ -401,8 +175,8 @@
 }
 
 .filter-pill.active {
-  background: var(--primary-500);
-  border-color: var(--primary-500);
+  background: var(--primary-600);
+  border-color: var(--primary-600);
   color: #fff;
 }
 
@@ -422,8 +196,8 @@
 }
 
 .ticket-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--primary-500);
+  transform: translateY(-2px);
+  border-color: var(--border-highlight);
   box-shadow: var(--shadow-float);
 }
 

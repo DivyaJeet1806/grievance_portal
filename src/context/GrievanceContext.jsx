@@ -102,8 +102,6 @@ export const GrievanceProvider = ({ children }) => {
     }
   }, [activeRole]);
 
-  const toggleTheme = () => {};
-
   // Create new Grievance via Node API
   const addGrievance = async (formData) => {
     try {
@@ -151,14 +149,17 @@ export const GrievanceProvider = ({ children }) => {
       location: formData.location.trim() || 'Main Campus',
       urgency: formData.urgency || 'Medium',
       status: 'Submitted',
-      submittedBy: formData.name || 'Student Complainant',
+      submittedBy: formData.name || (formData.complainantRole === 'teacher' ? 'Faculty Complainant' : 'Student Complainant'),
+      complainantRole: formData.complainantRole || (formData.employeeId ? 'teacher' : 'student'),
+      employeeId: formData.employeeId || null,
+      rollNumber: formData.rollNumber || null,
+      designation: formData.designation || null,
       contactEmail: formData.email || '',
       isAnonymous: false,
       createdAt: now,
       updatedAt: now,
       assignedTo: assignedOfficer,
       assignedDepartment: assignedDept,
-      slaHours: deptInfo.slaHours || 48,
       timeline: [
         {
           stage: 'Submitted',
@@ -170,7 +171,8 @@ export const GrievanceProvider = ({ children }) => {
       resolutionNotes: '',
       rating: null,
       feedback: null,
-      attachment: formData.attachment || null
+      attachment: formData.attachment || null,
+      attachmentUrl: formData.attachmentUrl || (formData.attachment && formData.attachment.startsWith('data:') ? formData.attachment : null)
     };
 
     setGrievances(prev => [fallbackTicket, ...prev]);
@@ -301,6 +303,11 @@ export const GrievanceProvider = ({ children }) => {
           showToast(`Resolution confirmed for Ticket #${id}!`, 'success');
           return json.data;
         }
+      } else {
+        const errJson = await res.json().catch(() => null);
+        const errMsg = errJson?.message || 'Resolution confirmation could not be processed.';
+        showToast(errMsg, 'warning');
+        return null;
       }
     } catch (err) {
       console.error('API Error confirming resolution:', err);
@@ -309,6 +316,11 @@ export const GrievanceProvider = ({ children }) => {
     // Local fallback
     const now = new Date().toISOString();
     const actor = confirmedByName || user?.name || (confirmedByRole === 'department' ? 'Department Officer' : 'Complainant');
+    const existing = grievances.find(g => g.id === id);
+    if (confirmedByRole === 'complainant' && existing?.complainantConfirmed && status !== 'Reopened') {
+      showToast('This grievance has already been verified and signed off. It can only be submitted once.', 'warning');
+      return null;
+    }
     setGrievances(prev =>
       prev.map(item => {
         if (item.id !== id) return item;
@@ -348,57 +360,18 @@ export const GrievanceProvider = ({ children }) => {
   };
 
 
-  // Reset database via Node API (JWT Admin Protected)
-  const resetToDefault = async () => {
-    try {
-      const res = await fetch('/api/grievances/reset', {
-        method: 'POST',
-        headers: {
-          ...getAuthHeaders()
-        }
-      });
-
-      let json = {};
-      try {
-        json = await res.json();
-      } catch {
-        // non-json response
-      }
-
-      if (res.status === 401 || res.status === 403) {
-        showToast(json.message || 'Admin login required to reset database.', 'error');
-        return;
-      }
-
-      if (res.ok) {
-        await fetchGrievances();
-        showToast('Reset Node.js backend database.', 'info');
-        return;
-      }
-    } catch (err) {
-      console.error('API Error resetting:', err);
-    }
-
-    setGrievances(INITIAL_GRIEVANCES);
-    try {
-      localStorage.removeItem(GRIEVANCES_STORAGE_KEY);
-    } catch {}
-    showToast('Reset database.', 'info');
-  };
 
   // Analytics metrics
   const totalCount = grievances.length;
   const pendingCount = grievances.filter(g => g.status === 'Submitted').length;
   const inProgressCount = grievances.filter(g => g.status === 'In Progress').length;
   const resolvedCount = grievances.filter(g => g.status === 'Resolved').length;
-  const criticalCount = grievances.filter(g => g.urgency === 'Critical' && g.status !== 'Resolved').length;
   const resolutionRate = totalCount > 0 ? Math.round((resolvedCount / totalCount) * 100) : 0;
 
   return (
     <GrievanceContext.Provider
       value={{
         theme,
-        toggleTheme,
         activeRole,
         setActiveRole,
         activeTab,
@@ -412,7 +385,6 @@ export const GrievanceProvider = ({ children }) => {
         updateGrievanceStatus,
         rateGrievance,
         confirmGrievanceResolution,
-        resetToDefault,
         toast,
         showToast,
         metrics: {
@@ -420,7 +392,6 @@ export const GrievanceProvider = ({ children }) => {
           pendingCount,
           inProgressCount,
           resolvedCount,
-          criticalCount,
           resolutionRate
         }
       }}

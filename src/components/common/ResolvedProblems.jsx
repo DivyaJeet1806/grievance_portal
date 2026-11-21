@@ -13,20 +13,17 @@ import {
   ShieldCheck,
   Award,
   ArrowRight,
-  Filter,
   Sparkles,
   Inbox,
   User,
-  Clock,
-  MessageSquare,
   Paperclip,
-  TrendingUp,
   FileCheck,
   ArrowUpDown,
   LayoutGrid,
   List,
-  SlidersHorizontal
+  Maximize2
 } from 'lucide-react';
+import { ImageLightboxModal } from '../common/ImageLightboxModal';
 
 export const ResolvedProblems = () => {
   const { grievances, setTrackedTicketId, setActiveTab } = useGrievance();
@@ -39,6 +36,7 @@ export const ResolvedProblems = () => {
   const [sortBy, setSortBy] = useState('department-asc');
   // View mode: 'list' or 'grouped'
   const [viewMode, setViewMode] = useState('grouped');
+  const [viewingPhotoTicket, setViewingPhotoTicket] = useState(null);
 
   // Filter only resolved problems
   const rawResolvedList = useMemo(() => {
@@ -214,6 +212,86 @@ export const ResolvedProblems = () => {
           {item.description}
         </p>
 
+        {/* Attached Photo Evidence in Resolved Card */}
+        {(item.attachmentUrl || item.attachment) && (
+          <div style={{
+            background: 'var(--surface-input)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-md)',
+            padding: '0.65rem 0.95rem',
+            marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.75rem',
+            flexWrap: 'wrap'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              {item.attachmentUrl ? (
+                <div
+                  style={{
+                    width: '42px',
+                    height: '42px',
+                    borderRadius: '6px',
+                    overflow: 'hidden',
+                    border: '1px solid rgba(56, 189, 248, 0.4)',
+                    cursor: 'pointer',
+                    flexShrink: 0
+                  }}
+                  onClick={() => setViewingPhotoTicket(item)}
+                  title="Click to view full photo"
+                >
+                  <img
+                    src={item.attachmentUrl}
+                    alt="Evidence"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                </div>
+              ) : (
+                <div style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '6px',
+                  background: 'rgba(56, 189, 248, 0.15)',
+                  color: '#38bdf8',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <Paperclip size={16} />
+                </div>
+              )}
+              <div>
+                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                  {item.attachment || 'Attached Photo Evidence'}
+                </div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                  Problem evidence documented at submission
+                </div>
+              </div>
+            </div>
+
+            {item.attachmentUrl && (
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => setViewingPhotoTicket(item)}
+                style={{
+                  fontSize: '0.76rem',
+                  padding: '0.3rem 0.65rem',
+                  color: '#38bdf8',
+                  borderColor: 'rgba(56, 189, 248, 0.35)',
+                  background: 'rgba(56, 189, 248, 0.08)'
+                }}
+              >
+                <Maximize2 size={12} />
+                <span>View Photo</span>
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Official Resolution Summary (Action Taken) */}
         {item.resolutionNotes && (
           <div style={{
@@ -291,7 +369,8 @@ export const ResolvedProblems = () => {
               {dept}
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--color-blue)', fontWeight: 600 }}>
-              👤 {item.assignedTo}
+              <User size={13} />
+              {item.assignedTo}
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
               <MapPin size={13} />
@@ -322,17 +401,17 @@ export const ResolvedProblems = () => {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.35rem' }}>
               <div style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: 'var(--radius-md)',
-                background: 'linear-gradient(135deg, #10b981, #059669)',
+                width: '40px',
+                height: '40px',
+                borderRadius: 'var(--radius-sm)',
+                background: 'var(--color-emerald)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#fff',
-                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.15)'
               }}>
-                <FileCheck size={24} />
+                <FileCheck size={22} />
               </div>
               <div>
                 <h1 style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, lineHeight: 1.15 }}>
@@ -562,7 +641,7 @@ export const ResolvedProblems = () => {
               padding: '0.45rem 0.75rem',
               borderRadius: 'var(--radius-sm)',
               border: 'none',
-              background: viewMode === 'grouped' ? 'var(--primary-gradient)' : 'transparent',
+              background: viewMode === 'grouped' ? 'var(--primary-600)' : 'transparent',
               color: viewMode === 'grouped' ? '#fff' : 'var(--text-secondary)',
               fontSize: '0.78rem',
               fontWeight: 700,
@@ -584,7 +663,7 @@ export const ResolvedProblems = () => {
               padding: '0.45rem 0.75rem',
               borderRadius: 'var(--radius-sm)',
               border: 'none',
-              background: viewMode === 'list' ? 'var(--primary-gradient)' : 'transparent',
+              background: viewMode === 'list' ? 'var(--primary-600)' : 'transparent',
               color: viewMode === 'list' ? '#fff' : 'var(--text-secondary)',
               fontSize: '0.78rem',
               fontWeight: 700,
@@ -635,22 +714,22 @@ export const ResolvedProblems = () => {
                   alignItems: 'center',
                   flexWrap: 'wrap',
                   gap: '0.75rem',
-                  padding: '1rem 1.25rem',
-                  background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(16, 185, 129, 0.08))',
-                  border: '1px solid rgba(99, 102, 241, 0.25)',
-                  borderRadius: 'var(--radius-lg)',
+                  padding: '0.95rem 1.25rem',
+                  background: 'var(--surface-input)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: 'var(--radius-md)',
                   marginBottom: '1rem'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                     <div style={{
-                      width: '34px',
-                      height: '34px',
-                      borderRadius: 'var(--radius-md)',
-                      background: 'rgba(99, 102, 241, 0.2)',
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: 'var(--radius-sm)',
+                      background: 'rgba(37, 99, 235, 0.12)',
+                      color: 'var(--primary-600)',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'var(--primary-500)'
+                      justifyContent: 'center'
                     }}>
                       <Building2 size={18} />
                     </div>
@@ -695,6 +774,16 @@ export const ResolvedProblems = () => {
           {sortedResolvedList.map(item => renderCard(item))}
         </div>
       )}
+
+      {/* Lightbox for Solved Problem Photo Evidence Inspection */}
+      <ImageLightboxModal
+        isOpen={!!viewingPhotoTicket}
+        onClose={() => setViewingPhotoTicket(null)}
+        imageUrl={viewingPhotoTicket?.attachmentUrl}
+        fileName={viewingPhotoTicket?.attachment}
+        ticketId={viewingPhotoTicket?.id}
+        title="Grievance Evidence Photo"
+      />
     </div>
   );
 };

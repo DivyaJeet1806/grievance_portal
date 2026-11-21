@@ -7,11 +7,8 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  // ALWAYS start at login — verifyToken will auto-advance to portal if token is valid
-  const [currentView, setCurrentView] = useState('login');
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isEnteringPortal, setIsEnteringPortal] = useState(false);
 
-  // Verify token on mount or token change
   // Verify token on mount or token change
   const verifyToken = useCallback(async (authToken) => {
     if (!authToken) {
@@ -32,7 +29,6 @@ export const AuthProvider = ({ children }) => {
           const json = await res.json();
           if (json && json.success && json.user) {
             setUser(json.user);
-            setCurrentView('portal'); // valid saved token → skip login form
             setLoading(false);
             return;
           }
@@ -45,7 +41,6 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem(TOKEN_KEY);
         setToken(null);
         setUser(null);
-        setCurrentView('login');
       }
     } catch (err) {
       console.warn('Auth verification network error', err);
@@ -67,7 +62,7 @@ export const AuthProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
-    } catch (networkErr) {
+    } catch {
       // Backend completely unreachable (e.g. server offline)
       const cleanEmail = email ? email.trim().toLowerCase() : '';
       if (cleanEmail === 'student@campus.edu' && password === 'student123') {
@@ -79,10 +74,29 @@ export const AuthProvider = ({ children }) => {
           department: 'Computer Science & Engineering',
           rollNumber: 'CS-2023-45'
         };
+        const mockToken = 'mock-jwt-student-token';
+        localStorage.setItem(TOKEN_KEY, mockToken);
+        setToken(mockToken);
         setUser(demoUser);
-        setIsAuthModalOpen(false);
-        setCurrentView('portal');
+        setIsEnteringPortal(true);
         return demoUser;
+      }
+      if (cleanEmail === 'teacher@campus.edu' && password === 'teacher123') {
+        const demoTeacher = {
+          id: 'USR-TEACHER-01',
+          name: 'Prof. Rajesh Verma',
+          email: 'teacher@campus.edu',
+          role: 'teacher',
+          department: 'Computer Science & Engineering',
+          employeeId: 'FAC-CSE-108',
+          designation: 'Associate Professor'
+        };
+        const mockToken = 'mock-jwt-teacher-token';
+        localStorage.setItem(TOKEN_KEY, mockToken);
+        setToken(mockToken);
+        setUser(demoTeacher);
+        setIsEnteringPortal(true);
+        return demoTeacher;
       }
       if (cleanEmail === 'admin@campus.edu' && password === 'admin123') {
         const demoAdmin = {
@@ -92,9 +106,11 @@ export const AuthProvider = ({ children }) => {
           role: 'admin',
           department: 'Student Affairs & Redressal Desk'
         };
+        const mockToken = 'mock-jwt-admin-token';
+        localStorage.setItem(TOKEN_KEY, mockToken);
+        setToken(mockToken);
         setUser(demoAdmin);
-        setIsAuthModalOpen(false);
-        setCurrentView('portal');
+        setIsEnteringPortal(true);
         return demoAdmin;
       }
       throw new Error('Cannot reach API server. Please ensure the backend server is running on port 5000.');
@@ -115,10 +131,29 @@ export const AuthProvider = ({ children }) => {
           department: 'Computer Science & Engineering',
           rollNumber: 'CS-2023-45'
         };
+        const mockToken = 'mock-jwt-student-token';
+        localStorage.setItem(TOKEN_KEY, mockToken);
+        setToken(mockToken);
         setUser(demoUser);
-        setIsAuthModalOpen(false);
-        setCurrentView('portal');
+        setIsEnteringPortal(true);
         return demoUser;
+      }
+      if (cleanEmail === 'teacher@campus.edu' && password === 'teacher123') {
+        const demoTeacher = {
+          id: 'USR-TEACHER-01',
+          name: 'Prof. Rajesh Verma',
+          email: 'teacher@campus.edu',
+          role: 'teacher',
+          department: 'Computer Science & Engineering',
+          employeeId: 'FAC-CSE-108',
+          designation: 'Associate Professor'
+        };
+        const mockToken = 'mock-jwt-teacher-token';
+        localStorage.setItem(TOKEN_KEY, mockToken);
+        setToken(mockToken);
+        setUser(demoTeacher);
+        setIsEnteringPortal(true);
+        return demoTeacher;
       }
       if (cleanEmail === 'admin@campus.edu' && password === 'admin123') {
         const demoAdmin = {
@@ -128,9 +163,11 @@ export const AuthProvider = ({ children }) => {
           role: 'admin',
           department: 'Student Affairs & Redressal Desk'
         };
+        const mockToken = 'mock-jwt-admin-token';
+        localStorage.setItem(TOKEN_KEY, mockToken);
+        setToken(mockToken);
         setUser(demoAdmin);
-        setIsAuthModalOpen(false);
-        setCurrentView('portal');
+        setIsEnteringPortal(true);
         return demoAdmin;
       }
       throw new Error(`Server returned status ${res.status}. Please ensure backend server is running.`);
@@ -143,8 +180,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem(TOKEN_KEY, json.token);
     setToken(json.token);
     setUser(json.user);
-    setIsAuthModalOpen(false);
-    setCurrentView('portal');
+    setIsEnteringPortal(true);
     return json.user;
   };
 
@@ -175,8 +211,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem(TOKEN_KEY, json.token);
     setToken(json.token);
     setUser(json.user);
-    setIsAuthModalOpen(false);
-    setCurrentView('portal');
+    setIsEnteringPortal(true);
     return json.user;
   };
 
@@ -185,7 +220,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem(TOKEN_KEY);
     setToken(null);
     setUser(null);
-    setCurrentView('login');
+    setIsEnteringPortal(false);
   };
 
   // Auth Header helper for fetch requests
@@ -205,14 +240,12 @@ export const AuthProvider = ({ children }) => {
         loading,
         isAuthenticated,
         isAdmin,
-        currentView,
-        setCurrentView,
+        isEnteringPortal,
+        setIsEnteringPortal,
         login,
         register,
         logout,
-        getAuthHeaders,
-        isAuthModalOpen,
-        setIsAuthModalOpen
+        getAuthHeaders
       }}
     >
       {children}

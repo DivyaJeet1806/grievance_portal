@@ -3,17 +3,16 @@ import { useGrievance } from '../../context/GrievanceContext';
 import { useAuth } from '../../context/AuthContext';
 import { CATEGORIES } from '../../data/initialGrievances';
 import { TicketActionModal } from './TicketActionModal';
+import { ImageLightboxModal } from '../common/ImageLightboxModal';
 import {
   Search,
-  Filter,
   Edit3,
   MapPin,
   Clock,
-  AlertCircle,
-  CheckCircle,
   CheckCircle2,
-  SlidersHorizontal,
-  Zap
+  Zap,
+  Image as ImageIcon,
+  Paperclip
 } from 'lucide-react';
 import { getDepartmentForCategory } from '../../data/departmentMapping';
 
@@ -25,10 +24,10 @@ export const TriageTable = () => {
   // Default to ACTIVE so resolved problems are removed from the main triage page
   const [statusFilter, setStatusFilter] = useState('ACTIVE');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
-  const [urgencyFilter, setUrgencyFilter] = useState('ALL');
 
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewingPhotoTicket, setViewingPhotoTicket] = useState(null);
 
   // Sorting state
   const [sortField, setSortField] = useState('department'); // default to department sorting
@@ -46,8 +45,6 @@ export const TriageTable = () => {
 
     // Category
     if (categoryFilter !== 'ALL' && item.category !== categoryFilter) return false;
-    // Urgency
-    if (urgencyFilter !== 'ALL' && item.urgency !== urgencyFilter) return false;
 
     // Search
     if (search.trim()) {
@@ -199,20 +196,6 @@ export const TriageTable = () => {
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
-
-          {/* Urgency Filter */}
-          <select
-            id="filter-urgency-select"
-            className="select-control"
-            value={urgencyFilter}
-            onChange={(e) => setUrgencyFilter(e.target.value)}
-          >
-            <option value="ALL">All Urgencies</option>
-            <option value="Low">Low Urgency</option>
-            <option value="Medium">Medium Urgency</option>
-            <option value="High">High Urgency</option>
-            <option value="Critical">Critical Urgency</option>
-          </select>
         </div>
       </div>
 
@@ -235,7 +218,6 @@ export const TriageTable = () => {
                   </span>
                 </div>
               </th>
-              <th>Urgency</th>
               <th>Status</th>
               <th>Assigned Officer</th>
               <th>Lodged</th>
@@ -259,18 +241,57 @@ export const TriageTable = () => {
                         {ticket.location}
                       </span>
                     </div>
+
+                    {/* Attached Photo Evidence pill */}
+                    {(ticket.attachmentUrl || ticket.attachment) && (
+                      <div style={{ marginTop: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        {ticket.attachmentUrl ? (
+                          <button
+                            type="button"
+                            onClick={() => setViewingPhotoTicket(ticket)}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                              padding: '0.2rem 0.55rem',
+                              borderRadius: 'var(--radius-sm)',
+                              background: 'rgba(56, 189, 248, 0.12)',
+                              border: '1px solid rgba(56, 189, 248, 0.35)',
+                              color: '#38bdf8',
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease'
+                            }}
+                            title="Click to view attached photo evidence"
+                          >
+                            <ImageIcon size={11} />
+                            <span>📷 View Photo</span>
+                          </button>
+                        ) : (
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.3rem',
+                            padding: '0.15rem 0.45rem',
+                            borderRadius: 'var(--radius-sm)',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            border: '1px solid var(--border-subtle)',
+                            color: 'var(--text-muted)',
+                            fontSize: '0.7rem'
+                          }}>
+                            <Paperclip size={10} />
+                            <span>{ticket.attachment}</span>
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </td>
                   <td>
                     <div style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                       {ticket.department || getDepartmentForCategory(ticket.category).department}
                     </div>
                     <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>{ticket.category}</span>
-                  </td>
-                  <td>
-                    <span className={`urgency-${ticket.urgency.toLowerCase()}`} style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                      {ticket.urgency === 'Critical' && <span className="pulse-dot"></span>}
-                      {ticket.urgency}
-                    </span>
                   </td>
                   <td>
                     {getStatusBadge(ticket.status)}
@@ -316,9 +337,9 @@ export const TriageTable = () => {
                           style={{
                             fontSize: '0.78rem',
                             padding: '0.35rem 0.75rem',
-                            background: 'linear-gradient(135deg, #10b981, #059669)',
+                            background: 'var(--color-emerald)',
                             border: 'none',
-                            boxShadow: '0 2px 6px rgba(16,185,129,0.3)'
+                            boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
                           }}
                           title="Mark Solved"
                           onClick={() => handleQuickStatus(ticket, 'Resolved')}
@@ -358,6 +379,16 @@ export const TriageTable = () => {
         ticket={selectedTicket}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+      />
+
+      {/* Lightbox for Instant Photo Evidence Inspection */}
+      <ImageLightboxModal
+        isOpen={!!viewingPhotoTicket}
+        onClose={() => setViewingPhotoTicket(null)}
+        imageUrl={viewingPhotoTicket?.attachmentUrl}
+        fileName={viewingPhotoTicket?.attachment}
+        ticketId={viewingPhotoTicket?.id}
+        title="Grievance Evidence Photo"
       />
     </div>
   );

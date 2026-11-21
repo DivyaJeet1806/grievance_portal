@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useGrievance } from '../../context/GrievanceContext';
 import {
-  KeyRound,
   AlertCircle,
-  UserCheck,
-  ShieldCheck,
-  Sparkles,
-  LogIn
+  LogIn,
+  Eye,
+  EyeOff,
+  Lock
 } from 'lucide-react';
+import loginBg from '../../assets/login-bg.jpg';
 
 export const LoginPage = () => {
   const { login } = useAuth();
@@ -20,6 +20,7 @@ export const LoginPage = () => {
   // Login inputs
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -30,192 +31,163 @@ export const LoginPage = () => {
       showToast(`Welcome back, ${loggedUser.name}!`, 'success');
       setActiveRole(loggedUser.role === 'admin' ? 'admin' : 'complainant');
     } catch (err) {
-      setErrorMsg(err.message || 'Invalid credentials. Please try again.');
+      setErrorMsg(err.message || 'Invalid credentials. Please verify email and password.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQuickLogin = async (demoEmail, demoPassword) => {
-    setEmail(demoEmail);
-    setPassword(demoPassword);
-    setErrorMsg('');
-    setLoading(true);
-    try {
-      const loggedUser = await login(demoEmail, demoPassword);
-      showToast(`Signed in as ${loggedUser.name}!`, 'success');
-      setActiveRole(loggedUser.role === 'admin' ? 'admin' : 'complainant');
-    } catch (err) {
-      setErrorMsg(err.message || 'Demo login failed.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '2rem 1.5rem', background: 'radial-gradient(ellipse at 50% 10%, rgba(99,102,241,0.15) 0%, rgba(15,23,42,0.95) 75%)' }}>
-
-      {/* Brand Header */}
-      <div style={{ textAlign: 'center', marginBottom: '1.75rem', maxWidth: '480px' }}>
-        <h1 style={{ fontSize: '1.85rem', fontWeight: 800, margin: '0', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-          IMSEC <span style={{ background: 'linear-gradient(135deg, #00bfff 0%, #a855f7 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Grievance Portal</span>
-        </h1>
-      </div>
-
-      {/* Centered Auth Card */}
-      <div className="glass-panel" style={{
-        maxWidth: '460px',
-        width: '100%',
-        overflow: 'hidden',
-        boxShadow: 'var(--shadow-float)',
-        border: '1px solid var(--border-subtle)'
-      }}>
-        {/* Card Header */}
-        <div style={{
-          padding: '1.15rem 1.75rem',
-          borderBottom: '1px solid var(--border-subtle)',
-          background: 'rgba(255,255,255,0.02)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.65rem'
-        }}>
-          <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: 'var(--radius-sm)',
-            background: 'rgba(99, 102, 241, 0.15)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--primary-400)'
-          }}>
-            <LogIn size={16} />
+    <div
+      className="login-page-wrapper"
+      style={{
+        backgroundImage: `radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.12) 0%, transparent 40%), linear-gradient(135deg, rgba(7, 9, 14, 0.92) 0%, rgba(7, 9, 14, 0.72) 45%, rgba(7, 9, 14, 0.35) 100%), url(${loginBg})`
+      }}
+    >
+      <div className="login-card-container">
+        <div className="login-glass-card">
+          {/* Header */}
+          <div style={{ marginBottom: '1.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+              <div style={{
+                width: '42px',
+                height: '42px',
+                borderRadius: '12px',
+                background: '#ffffff',
+                border: '1px solid rgba(56, 189, 248, 0.35)',
+                padding: '3px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.3)',
+                flexShrink: 0
+              }}>
+                <img src="/imsec-logo.png" alt="IMSEC" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              </div>
+              <div>
+                <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+                  Sign In
+                </h2>
+                <div style={{ marginTop: '0.15rem' }}>
+                  <span style={{ fontSize: '0.76rem', color: '#94a3b8', fontWeight: 500 }}>
+                    IMSEC Grievance Portal
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <h2 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>Sign In to Portal</h2>
-          </div>
-        </div>
 
-        <div style={{ padding: '2rem 1.75rem' }}>
-          {/* Error Banner */}
-          {errorMsg && (
+            {/* Error Message */}
+            {errorMsg && (
+              <div style={{
+                background: 'var(--color-rose-bg)',
+                border: '1px solid rgba(225, 29, 72, 0.25)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '0.75rem 0.95rem',
+                marginBottom: '1.25rem',
+                color: 'var(--color-rose)',
+                fontSize: '0.84rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <AlertCircle size={16} />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleLoginSubmit}>
+              <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                <label className="form-label" htmlFor="page-email" style={{ color: '#e2e8f0', fontWeight: 600 }}>
+                  <span>Email</span>
+                </label>
+                <input
+                  id="page-email"
+                  type="email"
+                  required
+                  autoFocus
+                  className="form-control login-input"
+                  placeholder="name@campus.edu"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                <label className="form-label" htmlFor="page-password" style={{ color: '#e2e8f0', fontWeight: 600 }}>
+                  <span>Password</span>
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    id="page-password"
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    className="form-control login-input"
+                    placeholder="••••••••"
+                    style={{ paddingRight: '2.5rem' }}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '0.75rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: '#94a3b8',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 0
+                    }}
+                    title={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                id="page-auth-submit-btn"
+                type="submit"
+                className="btn btn-primary login-submit-btn"
+                style={{ width: '100%', marginTop: '0.5rem', padding: '0.8rem' }}
+                disabled={loading}
+              >
+                {loading ? (
+                  <span>Authenticating...</span>
+                ) : (
+                  <>
+                    <LogIn size={16} />
+                    <span>Sign In</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+
+            {/* Security Note */}
             <div style={{
-              background: 'var(--color-rose-bg)',
-              border: '1px solid rgba(244, 63, 94, 0.3)',
-              borderRadius: 'var(--radius-md)',
-              padding: '0.75rem 1rem',
-              marginBottom: '1.25rem',
-              color: 'var(--color-rose)',
-              fontSize: '0.85rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem'
+              justifyContent: 'center',
+              gap: '0.4rem',
+              marginTop: '1.5rem',
+              fontSize: '0.75rem',
+              color: '#94a3b8'
             }}>
-              <AlertCircle size={16} />
-              <span>{errorMsg}</span>
-            </div>
-          )}
-
-          {/* Login Form */}
-          <form onSubmit={handleLoginSubmit}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="page-email">Institutional Email</label>
-              <input
-                id="page-email"
-                type="email"
-                required
-                autoFocus
-                className="form-control"
-                placeholder=""
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label" htmlFor="page-password">Password</label>
-              <input
-                id="page-password"
-                type="password"
-                required
-                className="form-control"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-
-            <button
-              id="page-auth-submit-btn"
-              type="submit"
-              className="btn btn-primary"
-              style={{ width: '100%', marginTop: '1.25rem', padding: '0.85rem' }}
-              disabled={loading}
-            >
-              {loading ? (
-                <span>Authenticating...</span>
-              ) : (
-                <>
-                  <KeyRound size={16} />
-                  <span>Sign In</span>
-                </>
-              )}
-            </button>
-          </form>
-
-          {/* Demo Accounts Quick Fill */}
-          <div style={{ marginTop: '1.75rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-subtle)' }}>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <Sparkles size={13} style={{ color: 'var(--color-amber)' }} /> Instant Demo Logins
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                style={{
-                  width: '100%',
-                  justifyContent: 'space-between',
-                  fontSize: '0.82rem',
-                  padding: '0.65rem 0.85rem',
-                  textAlign: 'left'
-                }}
-                onClick={() => handleQuickLogin('student@campus.edu', 'student123')}
-                disabled={loading}
-              >
-                <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                  <UserCheck size={15} style={{ color: 'var(--color-blue)' }} />
-                  <strong>Student:</strong> Rahul Sharma
-                </span>
-                <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>student@campus.edu</span>
-              </button>
-
-              <button
-                type="button"
-                className="btn btn-secondary"
-                style={{
-                  width: '100%',
-                  justifyContent: 'space-between',
-                  fontSize: '0.82rem',
-                  padding: '0.65rem 0.85rem',
-                  textAlign: 'left'
-                }}
-                onClick={() => handleQuickLogin('admin@campus.edu', 'admin123')}
-                disabled={loading}
-              >
-                <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                  <ShieldCheck size={15} style={{ color: '#a855f7' }} />
-                  <strong>Admin:</strong> Dr. Anita Rao
-                </span>
-                <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>admin@campus.edu</span>
-              </button>
+              <Lock size={12} style={{ color: '#38bdf8' }} />
+              <span>Encrypted Session</span>
             </div>
           </div>
-
-          <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-            Institutional Portal • Encrypted JWT Authentication
-          </p>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };

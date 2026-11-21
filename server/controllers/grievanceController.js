@@ -90,20 +90,38 @@ export async function getGrievanceById(req, res) {
 // POST /api/grievances
 export async function createGrievance(req, res) {
   try {
-    const { title, category, description, location, urgency, name, email, attachment } = req.body;
+    const {
+      title,
+      category,
+      description,
+      location,
+      urgency,
+      name,
+      email,
+      attachment,
+      attachmentUrl,
+      complainantRole,
+      employeeId,
+      rollNumber,
+      designation
+    } = req.body;
 
     if (!title || !description) {
       return res.status(400).json({ success: false, message: "Title and description are required." });
     }
 
-    const complainantName = req.user ? req.user.name : (name ? name.trim() : "Student Complainant");
+    const determinedRole = req.user?.role || (complainantRole === 'teacher' ? 'teacher' : 'student');
+    const defaultName = determinedRole === 'teacher' ? 'Faculty Complainant' : 'Student Complainant';
+    const complainantName = req.user ? req.user.name : (name ? name.trim() : defaultName);
     const complainantEmail = req.user ? req.user.email : (email ? email.trim() : "");
+    const complainantEmpId = req.user?.employeeId || (employeeId ? employeeId.trim() : (determinedRole === 'teacher' ? 'FAC-NA' : undefined));
+    const complainantRollNo = req.user?.rollNumber || (rollNumber ? rollNumber.trim() : undefined);
+    const complainantDesignation = req.user?.designation || (designation ? designation.trim() : (determinedRole === 'teacher' ? 'Faculty Member' : undefined));
 
     const randomCode = Math.floor(1000 + Math.random() * 9000);
     const newId = `GRV-2026-${randomCode}`;
     const now = new Date();
 
-    const slaMap = { Low: 96, Medium: 72, High: 48, Critical: 24 };
     const targetCat = category || "Other General Matters";
     const deptInfo = getDepartmentForCategory(targetCat);
     const assignedDepartment = deptInfo.department;
@@ -119,11 +137,14 @@ export async function createGrievance(req, res) {
       urgency: urgency || "Medium",
       status: "Submitted",
       submittedBy: complainantName,
+      complainantRole: determinedRole,
+      employeeId: complainantEmpId,
+      rollNumber: complainantRollNo,
+      designation: complainantDesignation,
       contactEmail: complainantEmail,
       isAnonymous: false,
       assignedTo: assignedOfficer,
       assignedDepartment: assignedDepartment,
-      slaHours: slaMap[urgency] || deptInfo.slaHours || 48,
       timeline: [
         {
           stage: "Submitted",
@@ -135,7 +156,8 @@ export async function createGrievance(req, res) {
       resolutionNotes: "",
       rating: null,
       feedback: null,
-      attachment: attachment || null
+      attachment: attachment || null,
+      attachmentUrl: attachmentUrl || (attachment && attachment.startsWith('data:') ? attachment : null)
     };
 
     if (isDBConnected()) {
@@ -369,6 +391,12 @@ export async function confirmResolution(req, res) {
           actor: current.departmentConfirmedBy
         });
       } else if (confirmedByRole === 'complainant') {
+        if (current.complainantConfirmed && status !== 'Reopened') {
+          return res.status(400).json({
+            success: false,
+            message: 'This grievance has already been verified and signed off by the complainant. Resubmission is not permitted.'
+          });
+        }
         if (status === 'Reopened') {
           current.status = 'In Progress';
           current.complainantConfirmed = false;
@@ -434,6 +462,12 @@ export async function confirmResolution(req, res) {
         actor: current.departmentConfirmedBy
       });
     } else if (confirmedByRole === 'complainant') {
+      if (current.complainantConfirmed && status !== 'Reopened') {
+        return res.status(400).json({
+          success: false,
+          message: 'This grievance has already been verified and signed off by the complainant. Resubmission is not permitted.'
+        });
+      }
       if (status === 'Reopened') {
         current.status = 'In Progress';
         current.complainantConfirmed = false;

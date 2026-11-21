@@ -57,6 +57,13 @@ export const DEPARTMENT_DIRECTORY = {
     scope: "Food hygiene, cafeteria pricing, RO drinking water inspection & pest control",
     keywords: ["food", "canteen", "cafeteria", "hygiene", "ro water", "mess food", "sanitation", "cleanliness", "dirty", "taste", "insect", "purifier"]
   },
+  "Faculty & Staff Affairs": {
+    department: "Faculty Welfare & Staff Administration Cell",
+    officer: "Prof. Amitabh Sen (Dean of Faculty Affairs)",
+    email: "faculty.affairs@campus.edu",
+    scope: "Faculty workload, teaching logistics, staff workstation, duty leave & research grants",
+    keywords: ["faculty", "teacher", "professor", "teaching", "podium", "workstation", "cabin", "salary", "leave", "research", "grant", "allowance", "conference", "hod"]
+  },
   "Other General Matters": {
     department: "Central Administrative Redressal Secretariat",
     officer: "Registrar Redressal Officer",
@@ -76,28 +83,4 @@ export function getDepartmentForCategory(category) {
   return DEPARTMENT_DIRECTORY["Other General Matters"];
 }
 
-/**
- * Intelligent category & department auto-detector based on text keywords.
- */
-export function detectDepartmentFromText(text = "") {
-  if (!text || typeof text !== "string") return null;
-  const lower = text.toLowerCase();
 
-  for (const [category, info] of Object.entries(DEPARTMENT_DIRECTORY)) {
-    if (info.keywords && info.keywords.length > 0) {
-      for (const kw of info.keywords) {
-        // Regex word boundary match to avoid partial false positives
-        const regex = new RegExp(`\\b${kw}\\b`, "i");
-        if (regex.test(lower)) {
-          return {
-            category,
-            department: info.department,
-            officer: info.officer,
-            matchedKeyword: kw
-          };
-        }
-      }
-    }
-  }
-  return null;
-}

@@ -5,7 +5,6 @@ import { DEPARTMENT_DIRECTORY, getDepartmentForCategory } from '../../data/depar
 import {
   CheckCircle2,
   Clock,
-  AlertTriangle,
   MapPin,
   User,
   Building2,
@@ -14,19 +13,11 @@ import {
   RotateCcw,
   CheckCircle,
   ShieldCheck,
+  Lock,
   Zap,
   Search,
-  Filter,
-  Calendar,
-  MessageSquare,
-  Award,
-  Sparkles,
-  ExternalLink,
-  ChevronRight,
   Layers,
-  Send,
   XCircle,
-  Hash,
   Paperclip
 } from 'lucide-react';
 
@@ -122,6 +113,9 @@ export const ResolutionDesk = () => {
   const handleComplainantConfirm = async (e) => {
     e.preventDefault();
     if (!selectedTicket) return;
+    if (selectedTicket.complainantConfirmed) {
+      return;
+    }
     setIsSubmitting(true);
 
     const name = complainantName.trim() || user?.name || selectedTicket.submittedBy || 'Complainant';
@@ -159,40 +153,23 @@ export const ResolutionDesk = () => {
               <div style={{
                 width: '38px',
                 height: '38px',
-                borderRadius: 'var(--radius-md)',
-                background: 'linear-gradient(135deg, #10b981, #059669)',
+                borderRadius: 'var(--radius-sm)',
+                background: 'var(--color-emerald)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#fff',
-                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.15)'
               }}>
-                <ShieldCheck size={22} />
+                <ShieldCheck size={20} />
               </div>
               <div>
                 <h1 style={{ fontSize: '1.55rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, lineHeight: 1.15 }}>
-                  Complainant Verification & Sign-Off Desk
+                  Complainant Verification
                 </h1>
-                <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', margin: '0.2rem 0 0' }}>
-                  Verify on-ground resolution and provide your feedback for grievances you personally raised.
-                </p>
+                
               </div>
             </div>
-          </div>
-
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            background: 'var(--surface-input)',
-            border: '1px solid var(--border-subtle)',
-            borderRadius: 'var(--radius-full)',
-            padding: '0.45rem 1rem',
-            fontSize: '0.82rem',
-            color: 'var(--text-secondary)'
-          }}>
-            <User size={15} style={{ color: '#10b981' }} />
-            <span>Reviewing as: <strong style={{ color: 'var(--text-primary)' }}>{user?.name || 'Complainant'}</strong></span>
           </div>
         </div>
       </div>
@@ -279,9 +256,6 @@ export const ResolutionDesk = () => {
             ) : (
               filteredList.map(item => {
                 const isSelected = selectedTicket?.id === item.id;
-                const isDual = item.departmentConfirmed && item.complainantConfirmed;
-                const isDeptDone = item.departmentConfirmed || item.status === 'Resolved';
-                const isComplainantDone = item.complainantConfirmed;
 
                 return (
                   <div
@@ -312,14 +286,10 @@ export const ResolutionDesk = () => {
                       {item.title}
                     </div>
 
-                    <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '180px' }}>
+                    <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
                         {item.department || getDepartmentForCategory(item.category).department}
                       </span>
-                      <div style={{ display: 'flex', gap: '0.3rem' }}>
-                        {isDeptDone && <span title="Department Confirmed" style={{ color: '#10b981', fontSize: '0.72rem' }}>🏢✓</span>}
-                        {isComplainantDone && <span title="Complainant Verified" style={{ color: '#3b82f6', fontSize: '0.72rem' }}>👤✓</span>}
-                      </div>
                     </div>
                   </div>
                 );
@@ -334,22 +304,13 @@ export const ResolutionDesk = () => {
 
             {/* PROBLEM INSPECTOR CARD ("Can See Problem") */}
             <div className="glass-panel" style={{ padding: '1.75rem', borderRadius: 'var(--radius-lg)' }}>
-              {/* Header: Ticket ID, Urgency, SLA */}
+              {/* Header: Ticket ID & Status */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.75rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
                   <span className="ticket-mono" style={{ fontSize: '1.15rem' }}>{selectedTicket.id}</span>
                   <span className={`badge ${selectedTicket.status === 'Resolved' ? 'badge-resolved' : selectedTicket.status === 'In Progress' ? 'badge-in-progress' : 'badge-submitted'}`}>
                     {selectedTicket.status}
                   </span>
-                  <span className={`urgency-${selectedTicket.urgency.toLowerCase()}`} style={{ fontSize: '0.8rem', fontWeight: 700 }}>
-                    {selectedTicket.urgency === 'Critical' && <span className="pulse-dot"></span>}
-                    {selectedTicket.urgency} Urgency ({selectedTicket.slaHours}h SLA)
-                  </span>
-                </div>
-
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <Calendar size={13} />
-                  Lodged: {new Date(selectedTicket.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                 </div>
               </div>
 
@@ -360,8 +321,8 @@ export const ResolutionDesk = () => {
 
               {/* Department Routing Banner */}
               <div style={{
-                background: 'linear-gradient(135deg, rgba(99,102,241,0.08), rgba(16,185,129,0.06))',
-                border: '1px solid rgba(99,102,241,0.2)',
+                background: 'var(--surface-input)',
+                border: '1px solid var(--border-subtle)',
                 borderRadius: 'var(--radius-md)',
                 padding: '0.85rem 1.15rem',
                 marginBottom: '1.25rem',
@@ -475,160 +436,247 @@ export const ResolutionDesk = () => {
             </div>
 
             {/* COMPLAINANT / CITIZEN CONFIRMATION FORM */}
-            <div className="glass-panel" style={{ padding: '1.75rem', borderRadius: 'var(--radius-lg)', borderTop: '3px solid #10b981' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
-                  <User size={18} style={{ color: '#10b981' }} />
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
-                    Complainant Verification & Sign-Off Desk
-                  </h3>
+            <div className="glass-panel" style={{ padding: '1.75rem', borderRadius: 'var(--radius-lg)', borderTop: `3px solid ${selectedTicket.complainantConfirmed ? 'var(--color-emerald)' : '#10b981'}` }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.4rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <User size={18} style={{ color: '#10b981' }} />
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
+                      Complainant Verification & Sign-Off Desk
+                    </h3>
+                  </div>
+
+                  {selectedTicket.complainantConfirmed && (
+                    <span className="badge badge-resolved" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', padding: '0.35rem 0.75rem' }}>
+                      <Lock size={13} />
+                      <span>Submitted & Locked</span>
+                    </span>
+                  )}
                 </div>
+
                 <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
-                  As the person who lodged this problem, please confirm if the department has resolved it on ground to your satisfaction.
+                  {selectedTicket.complainantConfirmed
+                    ? 'Your verification and sign-off have been permanently registered for this grievance.'
+                    : 'As the person who lodged this problem, please confirm if the department has resolved it on ground to your satisfaction.'}
                 </p>
 
-                <form onSubmit={handleComplainantConfirm}>
-                  {/* Satisfaction Choice */}
-                  <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-                    <label className="form-label">
-                      <span>Has your problem been solved? <span style={{ color: 'var(--color-rose)' }}>*</span></span>
-                    </label>
-                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                      <button
-                        type="button"
-                        onClick={() => setComplainantSatisfaction('satisfied')}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          padding: '0.65rem 1.25rem',
-                          borderRadius: 'var(--radius-md)',
-                          border: `1px solid ${complainantSatisfaction === 'satisfied' ? '#10b981' : 'var(--border-subtle)'}`,
-                          background: complainantSatisfaction === 'satisfied' ? 'rgba(16,185,129,0.12)' : 'var(--surface-input)',
-                          color: complainantSatisfaction === 'satisfied' ? '#10b981' : 'var(--text-secondary)',
-                          fontWeight: 700,
-                          fontSize: '0.88rem',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        <CheckCircle2 size={16} />
-                        <span>Yes, Problem is Solved!</span>
-                      </button>
+                {selectedTicket.complainantConfirmed ? (
+                  /* ALREADY SUBMITTED: LOCKED READ-ONLY VIEW (Can only be submitted once) */
+                  <div style={{
+                    background: 'rgba(16, 185, 129, 0.05)',
+                    border: '1px solid rgba(16, 185, 129, 0.28)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '1.35rem'
+                  }}>
 
-                      <button
-                        type="button"
-                        onClick={() => setComplainantSatisfaction('unsatisfied')}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          padding: '0.65rem 1.25rem',
-                          borderRadius: 'var(--radius-md)',
-                          border: `1px solid ${complainantSatisfaction === 'unsatisfied' ? '#f43f5e' : 'var(--border-subtle)'}`,
-                          background: complainantSatisfaction === 'unsatisfied' ? 'rgba(244,63,94,0.12)' : 'var(--surface-input)',
-                          color: complainantSatisfaction === 'unsatisfied' ? '#f43f5e' : 'var(--text-secondary)',
-                          fontWeight: 700,
-                          fontSize: '0.88rem',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        <XCircle size={16} />
-                        <span>No, Still Facing Issue (Reopen)</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Rating Stars (if satisfied) */}
-                  {complainantSatisfaction === 'satisfied' && (
-                    <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-                      <label className="form-label">
-                        <span>Rate Redressal Timeliness & Quality</span>
-                      </label>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        {[1, 2, 3, 4, 5].map(star => (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={() => setComplainantRating(star)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.2rem' }}
-                          >
-                            <Star
-                              size={24}
-                              fill={star <= complainantRating ? '#facc15' : 'none'}
-                              color={star <= complainantRating ? '#facc15' : 'var(--text-muted)'}
-                            />
-                          </button>
-                        ))}
-                        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-muted)', marginLeft: '0.4rem' }}>
-                          {complainantRating}/5 Stars
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                      gap: '0.85rem',
+                      marginBottom: '1rem'
+                    }}>
+                      <div style={{ background: 'var(--surface-input)', padding: '0.75rem 0.95rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
+                        <span style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.04em' }}>
+                          Status Confirmed
                         </span>
+                        <div style={{ color: 'var(--color-emerald)', fontWeight: 700, marginTop: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.88rem' }}>
+                          <CheckCircle2 size={15} />
+                          Yes, Problem is Solved!
+                        </div>
+                      </div>
+
+                      <div style={{ background: 'var(--surface-input)', padding: '0.75rem 0.95rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
+                        <span style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.04em' }}>
+                          Satisfaction Rating
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.2rem' }}>
+                          {[1, 2, 3, 4, 5].map(star => (
+                            <Star
+                              key={star}
+                              size={16}
+                              fill={star <= (selectedTicket.rating || 5) ? '#facc15' : 'none'}
+                              color={star <= (selectedTicket.rating || 5) ? '#facc15' : 'var(--text-muted)'}
+                            />
+                          ))}
+                          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-primary)', marginLeft: '0.25rem' }}>
+                            {selectedTicket.rating || 5}/5 Stars
+                          </span>
+                        </div>
+                      </div>
+
+                      <div style={{ background: 'var(--surface-input)', padding: '0.75rem 0.95rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
+                        <span style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.04em' }}>
+                          Signed Off By
+                        </span>
+                        <div style={{ color: 'var(--text-primary)', fontWeight: 700, marginTop: '0.2rem', fontSize: '0.86rem' }}>
+                          {selectedTicket.complainantConfirmedBy || selectedTicket.submittedBy || 'Rahul Sharma'}
+                        </div>
+                      </div>
+
+                      <div style={{ background: 'var(--surface-input)', padding: '0.75rem 0.95rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
+                        <span style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.04em' }}>
+                          Submission Timestamp
+                        </span>
+                        <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginTop: '0.2rem', fontSize: '0.82rem' }}>
+                          {selectedTicket.complainantConfirmedAt ? new Date(selectedTicket.complainantConfirmedAt).toLocaleString() : 'Recorded'}
+                        </div>
                       </div>
                     </div>
-                  )}
 
-                  {/* Feedback or Reopen Reason */}
-                  <div className="form-group" style={{ marginBottom: '1rem' }}>
-                    <label className="form-label" htmlFor="complainant-remarks">
-                      <span>
-                        {complainantSatisfaction === 'satisfied'
-                          ? 'Complainant Feedback / Remarks (Optional)'
-                          : 'Why is the problem not solved? Describe the issue in detail *'}
+                    <div style={{ background: 'var(--surface-input)', padding: '0.75rem 0.95rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
+                      <span style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.04em' }}>
+                        Recorded Complainant Feedback
                       </span>
-                    </label>
-                    <textarea
-                      id="complainant-remarks"
-                      rows={3}
-                      className="form-control"
-                      placeholder={
-                        complainantSatisfaction === 'satisfied'
-                          ? 'e.g. Fast response! The lab AC was repaired within 24 hours. Works great now.'
-                          : 'e.g. The leak has started again after the technician left; desk 15 is still unusable.'
-                      }
-                      value={complainantFeedback}
-                      onChange={e => setComplainantFeedback(e.target.value)}
-                      required={complainantSatisfaction === 'unsatisfied'}
-                    />
+                      <p style={{ margin: '0.35rem 0 0', fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                        "{selectedTicket.feedback || selectedTicket.resolutionNotes || 'Verified by complainant. Issue solved satisfactorily.'}"
+                      </p>
+                    </div>
                   </div>
+                ) : (
+                  /* NOT YET SUBMITTED: ACTIVE ONE-TIME FORM */
+                  <form onSubmit={handleComplainantConfirm}>
+                    {/* Satisfaction Choice */}
+                    <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                      <label className="form-label">
+                        <span>Has your problem been solved? <span style={{ color: 'var(--color-rose)' }}>*</span></span>
+                      </label>
+                      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                        <button
+                          type="button"
+                          onClick={() => setComplainantSatisfaction('satisfied')}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.65rem 1.25rem',
+                            borderRadius: 'var(--radius-md)',
+                            border: `1px solid ${complainantSatisfaction === 'satisfied' ? '#10b981' : 'var(--border-subtle)'}`,
+                            background: complainantSatisfaction === 'satisfied' ? 'rgba(16,185,129,0.12)' : 'var(--surface-input)',
+                            color: complainantSatisfaction === 'satisfied' ? '#10b981' : 'var(--text-secondary)',
+                            fontWeight: 700,
+                            fontSize: '0.88rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <CheckCircle2 size={16} />
+                          <span>Yes, Problem is Solved!</span>
+                        </button>
 
-                  {/* Complainant Name */}
-                  <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-                    <label className="form-label" htmlFor="complainant-name-input">
-                      Your Name / Roll Number
-                    </label>
-                    <input
-                      id="complainant-name-input"
-                      type="text"
-                      className="form-control"
-                      placeholder="e.g. Rahul Sharma"
-                      value={complainantName}
-                      onChange={e => setComplainantName(e.target.value)}
-                    />
-                  </div>
+                        <button
+                          type="button"
+                          onClick={() => setComplainantSatisfaction('unsatisfied')}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.65rem 1.25rem',
+                            borderRadius: 'var(--radius-md)',
+                            border: `1px solid ${complainantSatisfaction === 'unsatisfied' ? '#f43f5e' : 'var(--border-subtle)'}`,
+                            background: complainantSatisfaction === 'unsatisfied' ? 'rgba(244,63,94,0.12)' : 'var(--surface-input)',
+                            color: complainantSatisfaction === 'unsatisfied' ? '#f43f5e' : 'var(--text-secondary)',
+                            fontWeight: 700,
+                            fontSize: '0.88rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <XCircle size={16} />
+                          <span>No, Still Facing Issue (Reopen)</span>
+                        </button>
+                      </div>
+                    </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-                    <button
-                      id="complainant-confirm-submit-btn"
-                      type="submit"
-                      className="btn btn-primary"
-                      disabled={isSubmitting}
-                      style={{
-                        background: complainantSatisfaction === 'satisfied'
-                          ? 'linear-gradient(135deg, #10b981, #059669)'
-                          : 'linear-gradient(135deg, #f43f5e, #dc2626)',
-                        fontSize: '0.9rem',
-                        padding: '0.65rem 1.4rem'
-                      }}
-                    >
-                      {complainantSatisfaction === 'satisfied' ? <CheckCircle size={16} /> : <RotateCcw size={16} />}
-                      <span>
-                        {isSubmitting
-                          ? 'Processing...'
-                          : complainantSatisfaction === 'satisfied'
-                            ? 'Confirm Problem Solved (Complainant Sign-off)'
-                            : 'Reopen Grievance Ticket'}
-                      </span>
-                    </button>
-                  </div>
-                </form>
+                    {/* Rating Stars (if satisfied) */}
+                    {complainantSatisfaction === 'satisfied' && (
+                      <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                        <label className="form-label">
+                          <span>Rate Redressal Timeliness & Quality</span>
+                        </label>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          {[1, 2, 3, 4, 5].map(star => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setComplainantRating(star)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.2rem' }}
+                            >
+                              <Star
+                                size={24}
+                                fill={star <= complainantRating ? '#facc15' : 'none'}
+                                color={star <= complainantRating ? '#facc15' : 'var(--text-muted)'}
+                              />
+                            </button>
+                          ))}
+                          <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-muted)', marginLeft: '0.4rem' }}>
+                            {complainantRating}/5 Stars
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Feedback or Reopen Reason */}
+                    <div className="form-group" style={{ marginBottom: '1rem' }}>
+                      <label className="form-label" htmlFor="complainant-remarks">
+                        <span>
+                          {complainantSatisfaction === 'satisfied'
+                            ? 'Complainant Feedback / Remarks (Optional)'
+                            : 'Why is the problem not solved? Describe the issue in detail *'}
+                        </span>
+                      </label>
+                      <textarea
+                        id="complainant-remarks"
+                        rows={3}
+                        className="form-control"
+                        placeholder={
+                          complainantSatisfaction === 'satisfied'
+                            ? 'e.g. Fast response! The lab AC was repaired within 24 hours. Works great now.'
+                            : 'e.g. The leak has started again after the technician left; desk 15 is still unusable.'
+                        }
+                        value={complainantFeedback}
+                        onChange={e => setComplainantFeedback(e.target.value)}
+                        required={complainantSatisfaction === 'unsatisfied'}
+                      />
+                    </div>
+
+                    {/* Complainant Name */}
+                    <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                      <label className="form-label" htmlFor="complainant-name-input">
+                        Your Name / Roll Number
+                      </label>
+                      <input
+                        id="complainant-name-input"
+                        type="text"
+                        className="form-control"
+                        placeholder="e.g. Rahul Sharma"
+                        value={complainantName}
+                        onChange={e => setComplainantName(e.target.value)}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                      <button
+                        id="complainant-confirm-submit-btn"
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={isSubmitting}
+                        style={{
+                          background: complainantSatisfaction === 'satisfied'
+                            ? 'var(--color-emerald)'
+                            : 'var(--color-rose)',
+                          fontSize: '0.9rem',
+                          padding: '0.65rem 1.4rem'
+                        }}
+                      >
+                        {complainantSatisfaction === 'satisfied' ? <CheckCircle size={16} /> : <RotateCcw size={16} />}
+                        <span>
+                          {isSubmitting
+                            ? 'Processing...'
+                            : complainantSatisfaction === 'satisfied'
+                              ? 'Confirm Problem Solved (Complainant Sign-off)'
+                              : 'Reopen Grievance Ticket'}
+                        </span>
+                      </button>
+                    </div>
+                  </form>
+                )}
               </div>
           </div>
         ) : (

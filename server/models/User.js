@@ -27,10 +27,18 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['admin', 'student'],
+      enum: ['admin', 'student', 'teacher'],
       default: 'student'
     },
     rollNumber: {
+      type: String,
+      trim: true
+    },
+    employeeId: {
+      type: String,
+      trim: true
+    },
+    designation: {
       type: String,
       trim: true
     },
@@ -54,6 +62,8 @@ userSchema.methods.toSafeObject = function () {
     role: this.role,
     department: this.department,
     rollNumber: this.rollNumber,
+    employeeId: this.employeeId,
+    designation: this.designation,
     createdAt: this.createdAt
   };
 };

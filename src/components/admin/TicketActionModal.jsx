@@ -3,17 +3,14 @@ import { useGrievance } from '../../context/GrievanceContext';
 import { Modal } from '../common/Modal';
 import { 
   ShieldCheck, 
-  UserCheck, 
-  Clock, 
-  MapPin, 
-  FileText, 
-  CheckCircle, 
-  AlertTriangle,
-  Send,
   Building2,
-  Zap
+  Zap,
+  Image as ImageIcon,
+  Maximize2,
+  Paperclip
 } from 'lucide-react';
 import { DEPARTMENT_DIRECTORY, getDepartmentForCategory } from '../../data/departmentMapping';
+import { ImageLightboxModal } from '../common/ImageLightboxModal';
 
 const PRESET_OFFICERS = Object.values(DEPARTMENT_DIRECTORY).map(d => d.officer);
 
@@ -24,6 +21,7 @@ export const TicketActionModal = ({ ticket, isOpen, onClose }) => {
   const [assignedOfficer, setAssignedOfficer] = useState('');
   const [officerNote, setOfficerNote] = useState('');
   const [actorName, setActorName] = useState('Grievance Officer');
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   useEffect(() => {
     if (ticket) {
@@ -67,9 +65,6 @@ export const TicketActionModal = ({ ticket, isOpen, onClose }) => {
               <Building2 size={13} style={{ color: 'var(--primary-500)' }} />
               {ticket.department || getDepartmentForCategory(ticket.category).department}
             </span>
-            <span className={`urgency-${ticket.urgency.toLowerCase()}`} style={{ fontSize: '0.8rem', fontWeight: 800 }}>
-              {ticket.urgency} Urgency ({ticket.slaHours}h SLA)
-            </span>
           </div>
           <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
             {ticket.title}
@@ -84,6 +79,91 @@ export const TicketActionModal = ({ ticket, isOpen, onClose }) => {
               <Zap size={11} /> <strong>Auto-Assigned Officer:</strong> {ticket.assignedTo}
             </span>
           </div>
+
+          {/* Photo Evidence Section for Admin */}
+          {(ticket.attachmentUrl || ticket.attachment) && (
+            <div style={{
+              marginTop: '1rem',
+              paddingTop: '0.85rem',
+              borderTop: '1px solid var(--border-subtle)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '1rem',
+              flexWrap: 'wrap',
+              background: 'rgba(255, 255, 255, 0.02)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '0.75rem 0.85rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                {ticket.attachmentUrl ? (
+                  <div
+                    style={{
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '8px',
+                      overflow: 'hidden',
+                      border: '1px solid rgba(56, 189, 248, 0.4)',
+                      cursor: 'pointer',
+                      flexShrink: 0
+                    }}
+                    onClick={() => setIsLightboxOpen(true)}
+                    title="Click to view full photo"
+                  >
+                    <img 
+                      src={ticket.attachmentUrl} 
+                      alt="Grievance evidence" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    />
+                  </div>
+                ) : (
+                  <div style={{
+                    width: '42px',
+                    height: '42px',
+                    borderRadius: '8px',
+                    background: 'rgba(56, 189, 248, 0.15)',
+                    color: '#38bdf8',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <Paperclip size={18} />
+                  </div>
+                )}
+                <div>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <ImageIcon size={14} style={{ color: '#38bdf8' }} />
+                    <span>Attached Evidence: {ticket.attachment || 'Photo Evidence'}</span>
+                  </div>
+                  <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                    Uploaded with grievance submission
+                  </div>
+                </div>
+              </div>
+
+              {ticket.attachmentUrl && (
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => setIsLightboxOpen(true)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    fontSize: '0.8rem',
+                    padding: '0.35rem 0.75rem',
+                    color: '#38bdf8',
+                    borderColor: 'rgba(56, 189, 248, 0.35)',
+                    background: 'rgba(56, 189, 248, 0.08)'
+                  }}
+                >
+                  <Maximize2 size={13} />
+                  <span>Inspect Photo</span>
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Status Transition Control */}
@@ -207,6 +287,16 @@ export const TicketActionModal = ({ ticket, isOpen, onClose }) => {
           </button>
         </div>
       </form>
+
+      {/* Lightbox for Admin Photo Inspection */}
+      <ImageLightboxModal
+        isOpen={isLightboxOpen}
+        onClose={() => setIsLightboxOpen(false)}
+        imageUrl={ticket.attachmentUrl}
+        fileName={ticket.attachment}
+        ticketId={ticket.id}
+        title="Grievance Evidence Photo"
+      />
     </Modal>
   );
 };

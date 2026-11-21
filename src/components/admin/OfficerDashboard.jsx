@@ -6,7 +6,6 @@ import {
   Building2,
   CheckCircle2,
   Clock,
-  AlertTriangle,
   MapPin,
   User,
   FileText,
@@ -23,8 +22,12 @@ import {
   Filter,
   Inbox,
   Check,
-  Search
+  Search,
+  Image as ImageIcon,
+  Paperclip,
+  Maximize2
 } from 'lucide-react';
+import { ImageLightboxModal } from '../common/ImageLightboxModal';
 
 // Department selector so officer can pick which dept they represent
 const DEPARTMENTS = Object.entries(DEPARTMENT_DIRECTORY).map(([category, info]) => ({
@@ -41,13 +44,6 @@ const statusColors = {
   'In Progress': { bg: 'rgba(139,92,246,0.12)', border: 'rgba(139,92,246,0.35)', text: '#8b5cf6' },
   Resolved: { bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.35)', text: '#10b981' },
   Rejected: { bg: 'rgba(244,63,94,0.12)', border: 'rgba(244,63,94,0.35)', text: '#f43f5e' }
-};
-
-const urgencyColors = {
-  Low: '#10b981',
-  Medium: '#3b82f6',
-  High: '#f59e0b',
-  Critical: '#f43f5e'
 };
 
 const ConfirmResolutionPanel = ({ ticket, onClose, initialActionType = 'Resolved' }) => {
@@ -142,10 +138,10 @@ const ConfirmResolutionPanel = ({ ticket, onClose, initialActionType = 'Resolved
           disabled={submitting || !resolutionNote.trim()}
           style={{
             background: actionType === 'Resolved'
-              ? 'linear-gradient(135deg, #10b981, #059669)'
+              ? 'var(--color-emerald)'
               : actionType === 'Rejected'
-              ? 'linear-gradient(135deg, #f43f5e, #dc2626)'
-              : 'var(--primary-gradient)'
+              ? 'var(--color-rose)'
+              : 'var(--primary-600)'
           }}
         >
           {submitting ? (
@@ -166,11 +162,12 @@ const GrievanceCard = ({ ticket }) => {
   const [expanded, setExpanded] = useState(false);
   const [showResolution, setShowResolution] = useState(false);
   const [panelActionType, setPanelActionType] = useState('Resolved');
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const sc = statusColors[ticket.status] || statusColors['Submitted'];
   const isResolved = ticket.status === 'Resolved' || ticket.status === 'Rejected';
 
   return (
-    <div className="officer-ticket-card" style={{ borderLeft: `3px solid ${urgencyColors[ticket.urgency] || '#6366f1'}` }}>
+    <div className="officer-ticket-card" style={{ borderLeft: '3px solid var(--primary-500)' }}>
       {/* Card Header */}
       <div
         style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', cursor: 'pointer' }}
@@ -187,10 +184,22 @@ const GrievanceCard = ({ ticket }) => {
             }}>
               {ticket.status}
             </span>
-            <span style={{ fontSize: '0.74rem', fontWeight: 700, color: urgencyColors[ticket.urgency], display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-              {ticket.urgency === 'Critical' && <span className="pulse-dot" style={{ width: '6px', height: '6px' }} />}
-              {ticket.urgency}
-            </span>
+            {(ticket.attachmentUrl || ticket.attachment) && (
+              <span style={{
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                padding: '0.18rem 0.55rem',
+                borderRadius: 'var(--radius-full)',
+                background: 'rgba(56, 189, 248, 0.12)',
+                border: '1px solid rgba(56, 189, 248, 0.35)',
+                color: '#38bdf8',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.25rem'
+              }}>
+                <ImageIcon size={10} /> Photo Evidence
+              </span>
+            )}
           </div>
           <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.25rem', lineHeight: 1.3 }}>
             {ticket.title}
@@ -242,7 +251,7 @@ const GrievanceCard = ({ ticket }) => {
                 setShowResolution(true);
                 setExpanded(true);
               }}
-              style={{ background: 'linear-gradient(135deg, #10b981, #059669)', fontSize: '0.78rem', padding: '0.35rem 0.75rem' }}
+              style={{ background: 'var(--color-emerald)', fontSize: '0.78rem', padding: '0.35rem 0.75rem', border: 'none' }}
               title="Mark Solved"
             >
               <CheckCircle2 size={13} />
@@ -277,6 +286,93 @@ const GrievanceCard = ({ ticket }) => {
               {ticket.description}
             </p>
           </div>
+
+          {/* Attached Photo Evidence Section for Officer */}
+          {(ticket.attachmentUrl || ticket.attachment) && (
+            <div style={{ marginBottom: '1.25rem' }}>
+              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <ImageIcon size={12} style={{ color: '#38bdf8' }} /> Photo Evidence / Attachment
+              </div>
+              <div style={{
+                background: 'var(--surface-input)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-md)',
+                padding: '0.85rem 1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '1rem',
+                flexWrap: 'wrap'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  {ticket.attachmentUrl ? (
+                    <div
+                      style={{
+                        width: '52px',
+                        height: '52px',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        border: '1px solid rgba(56, 189, 248, 0.4)',
+                        cursor: 'pointer',
+                        flexShrink: 0
+                      }}
+                      onClick={() => setIsLightboxOpen(true)}
+                      title="Click to inspect photo"
+                    >
+                      <img 
+                        src={ticket.attachmentUrl} 
+                        alt="Evidence" 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                      />
+                    </div>
+                  ) : (
+                    <div style={{
+                      width: '42px',
+                      height: '42px',
+                      borderRadius: '8px',
+                      background: 'rgba(56, 189, 248, 0.15)',
+                      color: '#38bdf8',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}>
+                      <Paperclip size={18} />
+                    </div>
+                  )}
+                  <div>
+                    <div style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                      {ticket.attachment || 'Grievance Photo Evidence'}
+                    </div>
+                    <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                      Attached by {ticket.submittedBy}
+                    </div>
+                  </div>
+                </div>
+
+                {ticket.attachmentUrl && (
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => setIsLightboxOpen(true)}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      fontSize: '0.8rem',
+                      padding: '0.35rem 0.75rem',
+                      color: '#38bdf8',
+                      borderColor: 'rgba(56, 189, 248, 0.35)',
+                      background: 'rgba(56, 189, 248, 0.08)'
+                    }}
+                  >
+                    <Maximize2 size={13} />
+                    <span>Enlarge Photo</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Timeline */}
           {ticket.timeline && ticket.timeline.length > 0 && (
@@ -318,6 +414,16 @@ const GrievanceCard = ({ ticket }) => {
           )}
         </div>
       )}
+
+      {/* Lightbox for Officer Photo Evidence Inspection */}
+      <ImageLightboxModal
+        isOpen={isLightboxOpen}
+        onClose={() => setIsLightboxOpen(false)}
+        imageUrl={ticket.attachmentUrl}
+        fileName={ticket.attachment}
+        ticketId={ticket.id}
+        title="Grievance Evidence Photo"
+      />
     </div>
   );
 };
@@ -368,7 +474,6 @@ export const OfficerDashboard = () => {
   const pending = deptGrievances.filter(g => g.status === 'Submitted').length;
   const inProgress = deptGrievances.filter(g => g.status === 'In Progress').length;
   const resolved = deptGrievances.filter(g => g.status === 'Resolved').length;
-  const critical = deptGrievances.filter(g => g.urgency === 'Critical' && g.status !== 'Resolved').length;
 
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
@@ -376,8 +481,8 @@ export const OfficerDashboard = () => {
       {/* Page Header */}
       <div style={{ marginBottom: '2rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.4rem' }}>
-          <div style={{ width: '38px', height: '38px', borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Building2 size={20} color="#fff" />
+          <div style={{ width: '36px', height: '36px', borderRadius: 'var(--radius-sm)', background: 'var(--color-emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <Building2 size={18} color="#fff" />
           </div>
           <div>
             <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 }}>Department Officer Portal</h1>
@@ -447,8 +552,8 @@ export const OfficerDashboard = () => {
                 width: '38px',
                 height: '38px',
                 borderRadius: 'var(--radius-sm)',
-                background: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(16,185,129,0.2))',
-                border: '1px solid rgba(99,102,241,0.3)',
+                background: 'var(--surface-input)',
+                border: '1px solid var(--border-subtle)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -610,7 +715,7 @@ export const OfficerDashboard = () => {
       </div>
 
       {/* Selected Dept Info Banner */}
-      <div className="glass-panel" style={{ padding: '1.25rem 1.5rem', marginBottom: '1.5rem', background: 'linear-gradient(135deg, rgba(99,102,241,0.08), rgba(16,185,129,0.06))', border: '1px solid rgba(99,102,241,0.2)' }}>
+      <div className="glass-panel" style={{ padding: '1.25rem 1.5rem', marginBottom: '1.5rem', background: 'var(--surface-input)', border: '1px solid var(--border-subtle)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div>
             <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -627,11 +732,6 @@ export const OfficerDashboard = () => {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {critical > 0 && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: '0.3rem 0.75rem', borderRadius: 'var(--radius-full)', background: 'rgba(244,63,94,0.12)', border: '1px solid rgba(244,63,94,0.3)', color: '#f43f5e', fontSize: '0.78rem', fontWeight: 700 }}>
-                <AlertTriangle size={12} /> {critical} Critical
-              </span>
-            )}
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: '0.3rem 0.75rem', borderRadius: 'var(--radius-full)', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.25)', color: 'var(--primary-500)', fontSize: '0.78rem', fontWeight: 700 }}>
               <Zap size={12} /> {total} Total Assigned
             </span>

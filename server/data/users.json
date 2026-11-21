@@ -27,5 +27,16 @@
     "rollNumber": "CS-2024-99",
     "department": "Computer Science",
     "createdAt": "2026-09-23T09:06:38.860Z"
+  },
+  {
+    "id": "USR-TEACHER-01",
+    "name": "Prof. Rajesh Verma",
+    "email": "teacher@campus.edu",
+    "passwordHash": "$2b$10$Nl.8AJ3yZCAVsf0ggei74eRtIz36VvGgroR2VIn7UNo/6bvLhmnri",
+    "role": "teacher",
+    "employeeId": "FAC-CSE-108",
+    "designation": "Associate Professor",
+    "department": "Computer Science & Engineering",
+    "createdAt": "2026-09-01T00:00:00.000Z"
   }
 ]
